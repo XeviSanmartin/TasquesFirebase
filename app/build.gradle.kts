@@ -2,7 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-
+    //Serialització
+    kotlin("plugin.serialization") version "2.0.21"
     // Firebase
     id("com.google.gms.google-services")
 
@@ -54,12 +55,40 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
 
+    //Navegació
+    implementation("androidx.navigation:navigation-compose:2.8.5")
+    //Biblioteca extesa d'icones
+    implementation("androidx.compose.material:material-icons-extended")
+    //Serialització
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
 
-    // Import the Firebase BoM
+    //Firebase BoM (Bill of Materials)
+    //És BoM qui assigna la versió correcta a cadascuna de les
+    //biblioteques de firebase
     implementation(platform("com.google.firebase:firebase-bom:33.8.0"))
     // When using the BoM, don't specify versions in Firebase dependencies
+    //Firebase analytics
     implementation("com.google.firebase:firebase-analytics")
+    //Firebase autentificació
+    implementation ("com.google.firebase:firebase-auth-ktx")
+    //Firebase Realtime Dababase
+    implementation ("com.google.firebase:firebase-database-ktx")
+    //Firebase FireStore
+    implementation ("com.google.firebase:firebase-firestore-ktx")
+    //Firebase DataStorage
+    implementation ("com.google.firebase:firebase-storage-ktx")
+    //Firebase Crashlytics
+    //implementation ("com.google.firebase:firebase-crashlytics-ktx")
+    //Firebase Remote config
+    implementation ("com.google.firebase:firebase-config-ktx")
+    //Firebase Messaging
+    implementation ("com.google.firebase:firebase-messaging-ktx")
 
+    //Google play services (per a la identificació a través de Google
+    implementation("com.google.android.gms:play-services-auth:21.3.0")
+
+    //Descàrregues d'imatges d'Internet
+    implementation ("io.coil-kt:coil-compose:2.5.0")
 
 
     testImplementation(libs.junit)
