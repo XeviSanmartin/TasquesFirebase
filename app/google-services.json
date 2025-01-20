@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "848698198631",
+    "project_id": "tasques-a41c8",
+    "storage_bucket": "tasques-a41c8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:848698198631:android:fe75ba74b23ed6da43e2c2",
+        "android_client_info": {
+          "package_name": "cat.institutmontilivi.tasquesfirebase"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB1Zip6Th6Fk8Lx4B18IEuxxxwMiDgJEIM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
