@@ -12,7 +12,20 @@
           "package_name": "cat.institutmontilivi.tasquesfirebase"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "848698198631-9bo9r09fnn4tp0oe90r66hjvr1kmbe58.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "cat.institutmontilivi.tasquesfirebase",
+            "certificate_hash": "fd5f6e8a190304cca1fa1039b75b12ddef156822"
+          }
+        },
+        {
+          "client_id": "848698198631-2e7n0987pms64v55nn0mhi8alkp32iev.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyB1Zip6Th6Fk8Lx4B18IEuxxxwMiDgJEIM"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "848698198631-2e7n0987pms64v55nn0mhi8alkp32iev.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

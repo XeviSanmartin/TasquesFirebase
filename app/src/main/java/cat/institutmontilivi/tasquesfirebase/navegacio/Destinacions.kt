@@ -34,7 +34,6 @@ object DestinacioInstruccions
 @Serializable
 object DestinacioQuantA
 
-
 @Serializable
 object DestinacioLogin
 
@@ -42,7 +41,7 @@ object DestinacioLogin
 object DestinacioRegistre
 
 @Serializable
-object DestinacioRecuperaMotDePAs
+object DestinacioRecuperaMotDePas
 
 @Serializable
 object DestinacioPerfil
