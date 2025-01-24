@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     //Serialització
     kotlin("plugin.serialization") version "2.0.21"
-    // Firebase
+    // Identificacio de google a través de Firebase
     id("com.google.gms.google-services")
 
 }
@@ -86,6 +86,11 @@ dependencies {
 
     //Google play services (per a la identificació a través de Google
     implementation("com.google.android.gms:play-services-auth:21.3.0")
+    //Noves dependencies per al sistema d'autentificació per credencials
+    implementation ("androidx.credentials:credentials:1.3.0")
+    implementation ("androidx.credentials:credentials-play-services-auth:1.3.0")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
+
 
     //Descàrregues d'imatges d'Internet
     implementation ("io.coil-kt:coil-compose:2.5.0")

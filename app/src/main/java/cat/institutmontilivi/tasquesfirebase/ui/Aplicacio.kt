@@ -29,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -42,6 +43,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import cat.institutmontilivi.tasquesfirebase.R
+import cat.institutmontilivi.tasquesfirebase.analitiques.ManegadorAnalitiques
 import cat.institutmontilivi.tasquesfirebase.navegacio.DestinacioCategories
 import cat.institutmontilivi.tasquesfirebase.navegacio.DestinacioEstats
 import cat.institutmontilivi.tasquesfirebase.navegacio.DestinacioInstruccions
@@ -69,13 +71,14 @@ fun PantallaDeLAplicacio (content: @Composable ()->Unit)
 @Composable
 fun Aplicacio (content: @Composable ()-> Unit = { Text ("") })
 {
+    val manegadorAnalitiques = ManegadorAnalitiques(LocalContext.current)
     val controladorDeNavegacio = rememberNavController()
     val ambitCorrutina: CoroutineScope = rememberCoroutineScope()
     var estatDrawer = rememberDrawerState(initialValue = DrawerValue.Closed)
     val rutaActual by controladorDeNavegacio.currentBackStackEntryAsState()
     val destinacioActual = rutaActual?.destination
 
-    CalaixDeNavegacio(controladorDeNavegacio, ambitCorrutina, estatDrawer, rutaActual, destinacioActual)
+    CalaixDeNavegacio(controladorDeNavegacio, ambitCorrutina, estatDrawer, rutaActual, destinacioActual, manegadorAnalitiques)
 
 }
 //endregion
@@ -87,7 +90,8 @@ fun CalaixDeNavegacio(
     ambitCorrutina: CoroutineScope = rememberCoroutineScope(),
     estatDrawer: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed),
     rutaActual: NavBackStackEntry?,
-    destinacioActual: NavDestination?
+    destinacioActual: NavDestination?,
+    manegadorAnalitiques: ManegadorAnalitiques
 ) {
     ModalNavigationDrawer(
         drawerState = estatDrawer,
@@ -157,7 +161,8 @@ fun CalaixDeNavegacio(
             destinacioActual = destinacioActual,
             controladorDeNavegacio = controladorDeNavegacio,
             ambitCorrutina = ambitCorrutina,
-            estatDrawer = estatDrawer
+            estatDrawer = estatDrawer,
+            manegadorAnalitiques = manegadorAnalitiques
         )
     }
 }
@@ -184,7 +189,8 @@ fun Bastida(
     destinacioActual: NavDestination?,
     controladorDeNavegacio: NavHostController,
     ambitCorrutina: CoroutineScope,
-    estatDrawer: DrawerState
+    estatDrawer: DrawerState,
+    manegadorAnalitiques: ManegadorAnalitiques
 )
 {
     Scaffold(
@@ -215,7 +221,10 @@ fun Bastida(
                         }
                     }
                     else{
-                        IconButton(onClick = { controladorDeNavegacio.navigateUp()}) {
+                        IconButton(onClick = {
+                            controladorDeNavegacio.navigateUp()
+                            manegadorAnalitiques.registreClicABoto("Fletxa enrera")
+                        }) {
                             Icon(
                                 imageVector = Icons.Default.ArrowBack,
                                 contentDescription = null,
@@ -230,6 +239,7 @@ fun Bastida(
     {paddingValues ->
         GrafDeNavegacio(
             controladorDeNavegacio = controladorDeNavegacio,
+            manegadorAnalitiques = manegadorAnalitiques,
             paddingValues = paddingValues
         )
     }

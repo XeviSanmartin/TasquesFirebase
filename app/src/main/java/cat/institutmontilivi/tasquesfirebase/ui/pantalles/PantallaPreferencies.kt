@@ -10,11 +10,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import cat.institutmontilivi.tasquesfirebase.analitiques.ManegadorAnalitiques
 
-@Preview
+//@Preview
 @Composable
-fun PantallaPreferencies ()
+fun PantallaPreferencies (manegadorAnalitiques: ManegadorAnalitiques)
 {
+    manegadorAnalitiques.registraVisitaAPantalla("Preferències")
     Box(Modifier.fillMaxSize(). background(color = MaterialTheme.colorScheme.surfaceVariant))
     {
         Text(text = "Preferències",

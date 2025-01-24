@@ -2,7 +2,13 @@ package cat.institutmontilivi.tasquesfirebase.autentificacio
 
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
+import androidx.credentials.ClearCredentialStateRequest
+import androidx.credentials.CredentialManager
+import androidx.credentials.CustomCredential
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.GetCredentialResponse
 import cat.institutmontilivi.tasquesfirebase.R
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -11,12 +17,17 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.tasks.await
+import kotlin.coroutines.cancellation.CancellationException
 
 
 sealed class RespostaDAutentificacio<out T> {
@@ -24,8 +35,16 @@ sealed class RespostaDAutentificacio<out T> {
     data class Fracas(val missatgeError: String): RespostaDAutentificacio<Nothing>()
 }
 class ManegadorAutentificacio (private val context: Context){
-    private val autentificacio: FirebaseAuth by lazy { Firebase.auth }
-    private val manegadorIniciSessio = Identity.getSignInClient(context)
+    private val idClientWeb="848698198631-2e7n0987pms64v55nn0mhi8alkp32iev.apps.googleusercontent.com"
+    private val tag = "MANEGADOR_AUTENTIFICACIO"
+    private val autentificacio: FirebaseAuth by lazy {
+        Firebase.auth
+    }
+    //Versió vella que utilitzava el Google Signing
+    //private val manegadorIniciSessio = Identity.getSignInClient(context)
+
+    private val manegadorDeCredencials = CredentialManager.create(context)
+
 
     suspend fun iniciaSessioAnonima(): RespostaDAutentificacio<FirebaseUser> {
         return try {
@@ -65,47 +84,119 @@ class ManegadorAutentificacio (private val context: Context){
         }
     }
 
-    fun tancaSessio() {
+    suspend fun tancaSessio() {
+
+        manegadorDeCredencials.clearCredentialState(ClearCredentialStateRequest())
+       //validacio google antiga
+       //manegadorIniciSessio.signOut()
         autentificacio.signOut()
-        manegadorIniciSessio.signOut()
     }
 
     fun obtenUsuariActual(): FirebaseUser?{
         return autentificacio.currentUser
     }
 
-    private val clientIniciSessioGoogle: GoogleSignInClient by lazy {
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(context.getString(R.string.ClauDeLaApiWeb))
-            .requestEmail()
+    fun hiHaUsuariIniciat() =obtenUsuariActual() != null
+
+    //region Versió vella a través de Google Signing
+//    private val clientIniciSessioGoogle: GoogleSignInClient by lazy {
+//        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+//            .requestIdToken(context.getString(R.string.ClauDeLaApiWeb))
+//            .requestEmail()
+//            .build()
+//        GoogleSignIn.getClient(context, gso)
+//    }
+//
+//    fun manegaResultatIniciSessio(task: Task<GoogleSignInAccount>): RespostaDAutentificacio<GoogleSignInAccount>? {
+//        return try {
+//            val compte = task.getResult(ApiException::class.java)
+//            RespostaDAutentificacio.Exit(compte)
+//        } catch (e: ApiException) {
+//            RespostaDAutentificacio.Fracas(e.message ?: "No s'ha pogut iniciar sessió amb Google")
+//        }
+//    }
+//
+//    suspend fun iniciDeSessioAmbCredencials(credencial: AuthCredential): RespostaDAutentificacio<FirebaseUser>? {
+//        return try {
+//            val usuariDeFirebase = autentificacio.signInWithCredential(credencial).await()
+//            usuariDeFirebase.user?.let {
+//                RespostaDAutentificacio.Exit(it)
+//            } ?: throw Exception("Ha fallat l'inici de sessió amb Google")
+//        } catch (e: Exception) {
+//            RespostaDAutentificacio.Fracas(e.message ?: "Ha fallat l'inici de sessió amb Google")
+//        }
+//    }
+//
+//    fun iniciDeSessioAmbGoogle(laucherIniciDeSessioAmbGoogle: ActivityResultLauncher<Intent>) {
+//        val signInIntent = clientIniciSessioGoogle.signInIntent
+//        laucherIniciDeSessioAmbGoogle.launch(signInIntent)
+//    }
+    //endregion
+
+    private suspend fun creaPeticioDeCredencials(): GetCredentialResponse
+    {
+        val peticio = GetCredentialRequest.Builder()
+            .addCredentialOption(
+                GetGoogleIdOption.Builder()
+                    .setFilterByAuthorizedAccounts(false) //true si tan sols volem que surtin els comptes registrats al dispositiu
+                    .setServerClientId(idClientWeb)
+                    .setAutoSelectEnabled(false) //true si volem que seleccioni automàticament el compte principal
+                    .build()
+            )
             .build()
-        GoogleSignIn.getClient(context, gso)
+        return manegadorDeCredencials.getCredential(
+            request = peticio,
+            context = context
+        )
     }
 
-    fun manegaResultatIniciSessio(task: Task<GoogleSignInAccount>): RespostaDAutentificacio<GoogleSignInAccount>? {
-        return try {
-            val compte = task.getResult(ApiException::class.java)
-            RespostaDAutentificacio.Exit(compte)
-        } catch (e: ApiException) {
-            RespostaDAutentificacio.Fracas(e.message ?: "No s'ha pogut iniciar sessió amb Google")
+    private suspend fun manegaIniciDeSessio(resultat: GetCredentialResponse): Boolean {
+        val credencial = resultat.credential
+        if (credencial is CustomCredential &&
+            credencial.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL)
+        {
+            try{
+                val token = GoogleIdTokenCredential.createFrom(credencial.data)
+                Log.i(tag, "Token: ${token.displayName}")
+                Log.i(tag, "Token: ${token.familyName}")
+                Log.i(tag, "Token: ${token.phoneNumber}")
+                Log.i(tag, "Token: ${token.profilePictureUri}")
+
+                val credencialDeGoogle = GoogleAuthProvider.getCredential(token.idToken, null)
+                val resultatDeAutenticacio = autentificacio.signInWithCredential(credencialDeGoogle).await()
+
+                return resultatDeAutenticacio.user != null
+            }
+            catch (e:GoogleIdTokenParsingException)
+            {
+                Log.e(tag, "Error al parsejar el token: ${e.message}")
+                return false
+            }
+
         }
+        return false;
     }
 
-    suspend fun iniciDeSessioAmbCredencials(credencial: AuthCredential): RespostaDAutentificacio<FirebaseUser>? {
-        return try {
-            val usuariDeFirebase = autentificacio.signInWithCredential(credencial).await()
-            usuariDeFirebase.user?.let {
-                RespostaDAutentificacio.Exit(it)
-            } ?: throw Exception("Ha fallat l'inici de sessió amb Google")
-        } catch (e: Exception) {
-            RespostaDAutentificacio.Fracas(e.message ?: "Ha fallat l'inici de sessió amb Google")
+    suspend fun iniciDeSessioAmbGoogle():Boolean
+    {
+        if(hiHaUsuariIniciat())
+        {
+            Log.d(tag,"Ja hi ha un usuari iniciat" )
+            return true;
         }
+        else{
+            try {
+                val resultat = creaPeticioDeCredencials()
+                manegaIniciDeSessio(resultat)
+                return hiHaUsuariIniciat()
+            }
+            catch (e:Exception)
+            {
+                if (e is CancellationException) throw e //Cal rellençar aquesta excepció perquè torni a provar de fer el login
+                Log.e(tag, "Error al iniciar sessió amb Google: ${e.message}")
+                return false
+            }
+        }
+
     }
-
-    fun iniciDeSessioAmbGoogle(laucherIniciDeSessioAmbGoogle: ActivityResultLauncher<Intent>) {
-        val signInIntent = clientIniciSessioGoogle.signInIntent
-        laucherIniciDeSessioAmbGoogle.launch(signInIntent)
-    }
-
-
 }

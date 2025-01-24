@@ -10,11 +10,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import cat.institutmontilivi.tasquesfirebase.analitiques.ManegadorAnalitiques
 
-@Preview
+//@Preview
 @Composable
-fun PantallaInstruccions ()
+fun PantallaInstruccions (manegadorAnalitiques: ManegadorAnalitiques)
 {
+    manegadorAnalitiques.registraVisitaAPantalla("PantallaInstruccions")
     Box(Modifier.fillMaxSize(). background(color = MaterialTheme.colorScheme.surfaceVariant))
     {
         Text(text = "Pantalla d'instruccions",
@@ -24,3 +26,4 @@ fun PantallaInstruccions ()
             textAlign = TextAlign.Center)
     }
 }
+

@@ -27,7 +27,7 @@ class ManegadorAnalitiques(context: Context)  {
         registraEsdeveniment("error", params)
     }
     @Composable
-    fun registraVisitaAPantalla(nomPantalla: String) {
+    fun  registraVisitaAPantalla(nomPantalla: String) {
         DisposableEffect(Unit) {
             onDispose {
                 val params = Bundle().apply {

@@ -64,6 +64,7 @@ fun PantallaRegistre(
     var missatgeError by remember { mutableStateOf("") }
     val ambit = rememberCoroutineScope()
 
+    manegadorAnalitiques.registraVisitaAPantalla("Registre")
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,

@@ -15,6 +15,7 @@ import androidx.navigation.toRoute
 import cat.institutmontilivi.tasquesfirebase.analitiques.ManegadorAnalitiques
 import cat.institutmontilivi.tasquesfirebase.autentificacio.ManegadorAutentificacio
 import cat.institutmontilivi.tasquesfirebase.ui.pantalles.PantallaLogin
+import cat.institutmontilivi.tasquesfirebase.ui.pantalles.PantallaPerfil
 import cat.institutmontilivi.tasquesfirebase.ui.pantalles.PantallaRegistre
 import cat.institutmontivi.themoviedb.ui.pantalles.PantallaInstruccions
 import cat.institutmontivi.themoviedb.ui.pantalles.PantallaPortada
@@ -23,9 +24,9 @@ import cat.institutmontivi.themoviedb.ui.pantalles.PantallaQuantA
 import com.google.firebase.auth.FirebaseUser
 
 @Composable
-fun GrafDeNavegacio (controladorDeNavegacio: NavHostController = rememberNavController(), paddingValues: PaddingValues = PaddingValues(0.dp))
+fun GrafDeNavegacio (manegadorAnalitiques: ManegadorAnalitiques, controladorDeNavegacio: NavHostController = rememberNavController(), paddingValues: PaddingValues = PaddingValues(0.dp))
 {
-    val manegadorAnalitiques : ManegadorAnalitiques = ManegadorAnalitiques(LocalContext.current)
+    //val manegadorAnalitiques : ManegadorAnalitiques = ManegadorAnalitiques(LocalContext.current)
     val manegadorAutentificacio = ManegadorAutentificacio(LocalContext.current)
 
     val usuari: FirebaseUser? = manegadorAutentificacio.obtenUsuariActual()
@@ -48,7 +49,11 @@ fun GrafDeNavegacio (controladorDeNavegacio: NavHostController = rememberNavCont
         popUpTo(controladorDeNavegacio.graph.findStartDestination().id) { inclusive = false }
     }}
 
-    val navegaAInici = { controladorDeNavegacio.navigate(if (usuari==null) DestinacioLogin else DestinacioPortada){
+    val navegaAInici = { controladorDeNavegacio.navigate(
+        if (usuari==null)
+            DestinacioLogin
+        else
+            DestinacioPortada){
         popUpTo(controladorDeNavegacio.graph.findStartDestination().id) { inclusive = false }
         launchSingleTop = true
     }}
@@ -67,19 +72,19 @@ fun GrafDeNavegacio (controladorDeNavegacio: NavHostController = rememberNavCont
         modifier = Modifier.padding(paddingValues))
     {
         composable<DestinacioPortada> {
-           PantallaPortada()
+           PantallaPortada(manegadorAnalitiques)
         }
 
         composable<DestinacioInstruccions> {
-            PantallaInstruccions()
+            PantallaInstruccions(manegadorAnalitiques)
         }
 
         composable<DestinacioPreferencies> {
-            PantallaPreferencies()
+            PantallaPreferencies(manegadorAnalitiques)
         }
 
         composable<DestinacioQuantA> {
-            PantallaQuantA()
+            PantallaQuantA(manegadorAnalitiques)
         }
 
         composable<DestinacioLogin> {
@@ -95,7 +100,7 @@ fun GrafDeNavegacio (controladorDeNavegacio: NavHostController = rememberNavCont
         }
 
         composable<DestinacioPerfil> {
-            //PantallaQuantA()
+            PantallaPerfil(manegadorAnalitiques, manegadorAutentificacio, navegaALogin)
         }
 
         composable<DestinacioCategories> {

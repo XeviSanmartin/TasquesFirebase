@@ -58,6 +58,7 @@ fun PantallaPerfil(
     val usuari = manegadorAutentificacio.obtenUsuariActual()
     val ambit = rememberCoroutineScope()
 
+    manegadorAnalitiques.registraVisitaAPantalla(nomPantalla = "Perfil")
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,

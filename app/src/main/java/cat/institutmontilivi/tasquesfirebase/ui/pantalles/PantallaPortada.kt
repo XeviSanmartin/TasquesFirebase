@@ -21,12 +21,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import cat.institutmontilivi.tasquesfirebase.R
+import cat.institutmontilivi.tasquesfirebase.analitiques.ManegadorAnalitiques
 
 
-@Preview
+//@Preview
 @Composable
-fun PantallaPortada (onClick:()->Unit = {})
+fun PantallaPortada (manegadorAnalitiques: ManegadorAnalitiques, onClick:()->Unit = {})
 {
+    manegadorAnalitiques.registraVisitaAPantalla("Portada")
     Column(
         Modifier
             .fillMaxSize()

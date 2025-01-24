@@ -1,7 +1,5 @@
 package cat.institutmontilivi.tasquesfirebase.ui.pantalles
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -50,8 +48,6 @@ import cat.institutmontilivi.tasquesfirebase.analitiques.ManegadorAnalitiques
 import cat.institutmontilivi.tasquesfirebase.autentificacio.ManegadorAutentificacio
 import cat.institutmontilivi.tasquesfirebase.autentificacio.RespostaDAutentificacio
 import cat.institutmontilivi.tasquesfirebase.ui.PantallaDeLAplicacio
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.lang.RuntimeException
@@ -86,38 +82,39 @@ fun PantallaLogin(
     var error by remember { mutableStateOf(false) }
     var missatgeError by remember { mutableStateOf("") }
     val context = LocalContext.current
-    val ambit = rememberCoroutineScope()
+    val ambitDeCorrutina = rememberCoroutineScope()
 
-
-    //Registrem un launcher fer fer l'inici de sessió amb Google
-    val launcherIniciDeSessioAmbGoogle = rememberLauncherForActivityResult(
-        //Llencem un activityForResult
-        contract = ActivityResultContracts.StartActivityForResult()) { result ->
-        //GoogleSignIn.getSignedInAccountFromIntent(result.data)) obre una activity de Google on
-        //L'usuari es valida, i ens retornarà una resposta que contindrà el compte de google o un error
-        when(val resposta = manegadorAutentificacio.manegaResultatIniciSessio(GoogleSignIn.getSignedInAccountFromIntent(result.data))) {
-            is RespostaDAutentificacio.Exit -> {
-                //Del compte de google volem les credencials, per tal de poder iniciar sessió amb Firebase
-                val credencial = GoogleAuthProvider.getCredential(resposta.dades.idToken, null)
-                ambit.launch {
-                    val usuariFirebase = manegadorAutentificacio.iniciDeSessioAmbCredencials(credencial)
-                    if (usuariFirebase != null){
-                        navegaAInici()
-                    }
-                }
-            }
-            is RespostaDAutentificacio.Fracas -> {
-                manegadorAnalitiques.registraError("Error d'autentificació: ${resposta.missatgeError}")
-                error = true
-                missatgeError= resposta.missatgeError
-            }
-            else -> {
-                error = true
-                manegadorAnalitiques.registraError("Hi ha hagut un error inesperat")
-                missatgeError = "Hi ha hagut un error inesperat"
-            }
-        }
-    }
+//region Versió vella que utilitzava Google Singing
+//    //Registrem un launcher fer fer l'inici de sessió amb Google
+//    val launcherIniciDeSessioAmbGoogle = rememberLauncherForActivityResult(
+//        //Llencem un activityForResult
+//        contract = ActivityResultContracts.StartActivityForResult()) { result ->
+//        //GoogleSignIn.getSignedInAccountFromIntent(result.data)) obre una activity de Google on
+//        //L'usuari es valida, i ens retornarà una resposta que contindrà el compte de google o un error
+//        when(val resposta = manegadorAutentificacio.manegaResultatIniciSessio(GoogleSignIn.getSignedInAccountFromIntent(result.data))) {
+//            is RespostaDAutentificacio.Exit -> {
+//                //Del compte de google volem les credencials, per tal de poder iniciar sessió amb Firebase
+//                val credencial = GoogleAuthProvider.getCredential(resposta.dades.idToken, null)
+//                ambit.launch {
+//                    val usuariFirebase = manegadorAutentificacio.iniciDeSessioAmbCredencials(credencial)
+//                    if (usuariFirebase != null){
+//                        navegaAInici()
+//                    }
+//                }
+//            }
+//            is RespostaDAutentificacio.Fracas -> {
+//                manegadorAnalitiques.registraError("Error d'autentificació: ${resposta.missatgeError}")
+//                error = true
+//                missatgeError= resposta.missatgeError
+//            }
+//            else -> {
+//                error = true
+//                manegadorAnalitiques.registraError("Hi ha hagut un error inesperat")
+//                missatgeError = "Hi ha hagut un error inesperat"
+//            }
+//        }
+//    }
+    //endregion
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -166,10 +163,10 @@ fun PantallaLogin(
         Button(
             onClick = {
                 manegadorAnalitiques.registreClicABoto("Inicia sessió amb correu i mot de pas")
-                val deferredJob = ambit.async{
+                val deferredJob = ambitDeCorrutina.async{
                     return@async IniciDeSessioCorreu(correu, motDePas, manegadorAutentificacio, navegaAInici)
                 }
-                ambit.launch {
+                ambitDeCorrutina.launch {
                     val resultat = deferredJob.await()
                     error = resultat.first
                     missatgeError = resultat.second
@@ -203,7 +200,14 @@ fun PantallaLogin(
             text = AnnotatedString("No recordes el teu mot de pas?"),
             onClick = {
                 manegadorAnalitiques.registreClicABoto("Click: No recordes el teu mot de pas?")
-                navegaARecuperaMotDePas()
+                val deferredJob = ambitDeCorrutina.async{
+                    return@async RecuperaMotDePas(correu,  manegadorAutentificacio)
+                }
+                ambitDeCorrutina.launch {
+                    val resultat = deferredJob.await()
+                    error = resultat.first
+                    missatgeError = resultat.second
+                }
             },
             style = TextStyle(
                 fontSize = 14.sp,
@@ -225,8 +229,8 @@ fun PantallaLogin(
         BotoXarxaSocial(
             onClick = {
                 manegadorAnalitiques.registreClicABoto("Continua com a convidat")
-                ambit.launch{
-                    IniciDeSessioIncognit(manegadorAutentificacio, navegaAInici)
+                ambitDeCorrutina.launch{
+                    IniciDeSessioIncognit(manegadorAutentificacio, navegaAInici, manegadorAnalitiques)
                 }
             },
             text = "Continua com a convidat",
@@ -238,8 +242,18 @@ fun PantallaLogin(
         BotoXarxaSocial(
             onClick = {
                 manegadorAnalitiques.registreClicABoto("Inici de sessió amb Google")
+                ambitDeCorrutina.launch {
+                    error = !manegadorAutentificacio.iniciDeSessioAmbGoogle();
+                    missatgeError = "Ha fallat l'autentificació amb Google"
+                    if(!error)
+                    {
+                        navegaAInici()
+                    }
+                }
+
+                //versió vella de google Signing
                 //Enviem el launcher d'inici de sessió amb Google
-                manegadorAutentificacio.iniciDeSessioAmbGoogle(launcherIniciDeSessioAmbGoogle)
+                //manegadorAutentificacio.iniciDeSessioAmbGoogle(launcherIniciDeSessioAmbGoogle)
             },
             text = "Continua amb Google",
             icon = R.drawable.ic_google,
@@ -306,14 +320,15 @@ fun BotoXarxaSocial(onClick: () -> Unit, text: String, icon: Int, colorFons: Col
 
 suspend fun IniciDeSessioIncognit(
     manegadorAutentificacio: ManegadorAutentificacio,
-    navegaAInici: () -> Unit
+    navegaAInici: () -> Unit,
+    manegadorAnalitiques: ManegadorAnalitiques
 ) {
     when(manegadorAutentificacio.iniciaSessioAnonima()){
         is RespostaDAutentificacio.Exit->{
             navegaAInici()
         }
         is RespostaDAutentificacio.Fracas->{
-            //Cal registrar l'error a analytics
+            manegadorAnalitiques.registraError("Error a l'iniciar la sessió incognita")
         }
     }
 }
@@ -330,6 +345,26 @@ suspend fun IniciDeSessioCorreu(
         when (val resposta = manegadorAutentificacio.iniciaSessioAmbCorreuIMotDePas (correu, motDePas)) {
             is RespostaDAutentificacio.Exit -> {
                 navegaAInici()
+                resultat = Pair(false, "")
+            }
+            is RespostaDAutentificacio.Fracas -> {
+                resultat = Pair(true, resposta.missatgeError)
+            }
+        }
+    } else {
+        resultat = Pair(true, "Cal omplir tots els camps")
+    }
+    return resultat
+}
+
+suspend fun RecuperaMotDePas(
+    correu: String,
+    manegadorAutentificacio: ManegadorAutentificacio
+):Pair<Boolean,String> {
+    lateinit var resultat: Pair<Boolean, String>
+    if(correu.isNotEmpty()) {
+        when (val resposta = manegadorAutentificacio.restableixElMotDePas (correu)) {
+            is RespostaDAutentificacio.Exit -> {
                 resultat = Pair(false, "")
             }
             is RespostaDAutentificacio.Fracas -> {
