@@ -48,30 +48,32 @@ import cat.institutmontilivi.tasquesfirebase.analitiques.ManegadorAnalitiques
 import cat.institutmontilivi.tasquesfirebase.autentificacio.ManegadorAutentificacio
 import cat.institutmontilivi.tasquesfirebase.autentificacio.RespostaDAutentificacio
 import cat.institutmontilivi.tasquesfirebase.ui.PantallaDeLAplicacio
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.lang.RuntimeException
 
-@Preview
-@Composable
-fun PreviewLogin()
-{
-    PantallaDeLAplicacio {
-        PantallaLogin(
-            manegadorAnalitiques = ManegadorAnalitiques(LocalContext.current),
-            manegadorAutentificacio = ManegadorAutentificacio(LocalContext.current),
-            navegaARegistre={},
-            navegaARecuperaMotDePas={}
-        ) {}
-    }
-}
+//@Preview
+//@Composable
+//fun PreviewLogin()
+//{
+//    PantallaDeLAplicacio {
+//        PantallaLogin(
+//            manegadorAnalitiques = ManegadorAnalitiques(LocalContext.current),
+//            manegadorAutentificacio = ManegadorAutentificacio(LocalContext.current),
+//            crashlytics,
+//            navegaARegistre ={},
+//            navegaARecuperaMotDePas ={}
+//        ) {}
+//    }
+//}
 
 @Composable
 fun PantallaLogin(
     manegadorAnalitiques: ManegadorAnalitiques,
     manegadorAutentificacio: ManegadorAutentificacio,
+    crashlytics: FirebaseCrashlytics,
     navegaARegistre: () -> Unit,
-    navegaARecuperaMotDePas: () -> Unit,
     navegaAInici: () -> Unit
 )
 {
@@ -264,9 +266,9 @@ fun PantallaLogin(
         ClickableText(
             text = AnnotatedString("Força el tancament de Crashlytics"),
             onClick = {
-                //val crashlytics = FirebaseCrashlytics.getInstance()
-                //crashlytics.setCustomKey("clauDeProva", "valor de la prova")
-                //crashlytics.log("Missatge personalitzat des d'un log")
+
+                crashlytics.setCustomKey("clauDeProva", "valor de la prova")
+                crashlytics.log("Missatge personalitzat des d'un log")
 
                 throw RuntimeException("Això força un error a la pantalla de login")
             },

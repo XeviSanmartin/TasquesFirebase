@@ -6,6 +6,8 @@ plugins {
     kotlin("plugin.serialization") version "2.0.21"
     // Identificacio de google a través de Firebase
     id("com.google.gms.google-services")
+    // Add the Crashlytics Gradle plugin
+    id("com.google.firebase.crashlytics")
 
 }
 
@@ -78,7 +80,7 @@ dependencies {
     //Firebase DataStorage
     implementation ("com.google.firebase:firebase-storage-ktx")
     //Firebase Crashlytics
-    //implementation ("com.google.firebase:firebase-crashlytics-ktx")
+    implementation ("com.google.firebase:firebase-crashlytics-ktx")
     //Firebase Remote config
     implementation ("com.google.firebase:firebase-config-ktx")
     //Firebase Messaging

@@ -22,9 +22,15 @@ import cat.institutmontivi.themoviedb.ui.pantalles.PantallaPortada
 import cat.institutmontivi.themoviedb.ui.pantalles.PantallaPreferencies
 import cat.institutmontivi.themoviedb.ui.pantalles.PantallaQuantA
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 
 @Composable
-fun GrafDeNavegacio (manegadorAnalitiques: ManegadorAnalitiques, controladorDeNavegacio: NavHostController = rememberNavController(), paddingValues: PaddingValues = PaddingValues(0.dp))
+fun GrafDeNavegacio (
+    manegadorAnalitiques: ManegadorAnalitiques,
+    controladorDeNavegacio: NavHostController = rememberNavController(),
+    paddingValues: PaddingValues = PaddingValues(0.dp),
+    crashlytics: FirebaseCrashlytics
+)
 {
     //val manegadorAnalitiques : ManegadorAnalitiques = ManegadorAnalitiques(LocalContext.current)
     val manegadorAutentificacio = ManegadorAutentificacio(LocalContext.current)
@@ -42,10 +48,6 @@ fun GrafDeNavegacio (manegadorAnalitiques: ManegadorAnalitiques, controladorDeNa
 //        restoreState = true
     //region Lambdas
     val navegaARegistre ={controladorDeNavegacio.navigate(DestinacioRegistre){
-        popUpTo(controladorDeNavegacio.graph.findStartDestination().id) { inclusive = false }
-    }}
-
-    val navegaARecuperaMotDePas ={controladorDeNavegacio.navigate(DestinacioRecuperaMotDePas){
         popUpTo(controladorDeNavegacio.graph.findStartDestination().id) { inclusive = false }
     }}
 
@@ -88,7 +90,7 @@ fun GrafDeNavegacio (manegadorAnalitiques: ManegadorAnalitiques, controladorDeNa
         }
 
         composable<DestinacioLogin> {
-            PantallaLogin(manegadorAnalitiques, manegadorAutentificacio,navegaARegistre,navegaARecuperaMotDePas,navegaAInici)
+            PantallaLogin(manegadorAnalitiques, manegadorAutentificacio,crashlytics,navegaARegistre,navegaAInici)
         }
 
         composable<DestinacioRegistre> {

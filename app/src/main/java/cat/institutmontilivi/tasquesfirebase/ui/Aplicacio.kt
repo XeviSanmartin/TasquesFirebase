@@ -55,6 +55,7 @@ import cat.institutmontilivi.tasquesfirebase.navegacio.DestinacioTasques
 import cat.institutmontilivi.tasquesfirebase.navegacio.GrafDeNavegacio
 import cat.institutmontilivi.tasquesfirebase.navegacio.opcionsDrawer
 import cat.institutmontilivi.tasquesfirebase.ui.theme.TasquesFirebaseTheme
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -71,6 +72,7 @@ fun PantallaDeLAplicacio (content: @Composable ()->Unit)
 @Composable
 fun Aplicacio (content: @Composable ()-> Unit = { Text ("") })
 {
+    val crashlytics = FirebaseCrashlytics.getInstance()
     val manegadorAnalitiques = ManegadorAnalitiques(LocalContext.current)
     val controladorDeNavegacio = rememberNavController()
     val ambitCorrutina: CoroutineScope = rememberCoroutineScope()
@@ -78,7 +80,7 @@ fun Aplicacio (content: @Composable ()-> Unit = { Text ("") })
     val rutaActual by controladorDeNavegacio.currentBackStackEntryAsState()
     val destinacioActual = rutaActual?.destination
 
-    CalaixDeNavegacio(controladorDeNavegacio, ambitCorrutina, estatDrawer, rutaActual, destinacioActual, manegadorAnalitiques)
+    CalaixDeNavegacio(controladorDeNavegacio, ambitCorrutina, estatDrawer, rutaActual, destinacioActual, manegadorAnalitiques, crashlytics)
 
 }
 //endregion
@@ -91,7 +93,8 @@ fun CalaixDeNavegacio(
     estatDrawer: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed),
     rutaActual: NavBackStackEntry?,
     destinacioActual: NavDestination?,
-    manegadorAnalitiques: ManegadorAnalitiques
+    manegadorAnalitiques: ManegadorAnalitiques,
+    crashlytics: FirebaseCrashlytics
 ) {
     ModalNavigationDrawer(
         drawerState = estatDrawer,
@@ -162,7 +165,8 @@ fun CalaixDeNavegacio(
             controladorDeNavegacio = controladorDeNavegacio,
             ambitCorrutina = ambitCorrutina,
             estatDrawer = estatDrawer,
-            manegadorAnalitiques = manegadorAnalitiques
+            manegadorAnalitiques = manegadorAnalitiques,
+            crashlytics = crashlytics
         )
     }
 }
@@ -190,7 +194,8 @@ fun Bastida(
     controladorDeNavegacio: NavHostController,
     ambitCorrutina: CoroutineScope,
     estatDrawer: DrawerState,
-    manegadorAnalitiques: ManegadorAnalitiques
+    manegadorAnalitiques: ManegadorAnalitiques,
+    crashlytics: FirebaseCrashlytics
 )
 {
     Scaffold(
@@ -240,6 +245,7 @@ fun Bastida(
         GrafDeNavegacio(
             controladorDeNavegacio = controladorDeNavegacio,
             manegadorAnalitiques = manegadorAnalitiques,
+            crashlytics = crashlytics,
             paddingValues = paddingValues
         )
     }
