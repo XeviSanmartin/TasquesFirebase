@@ -45,7 +45,6 @@ fun PreviewPerfil()
     )
 }
 
-
 @Composable
 fun PantallaPerfil(
     manegadorAnalitiques: ManegadorAnalitiques,
@@ -135,20 +134,6 @@ fun PantallaPerfil(
             Text(text = "Tanca la sessió".uppercase())
         }
 
-        Button(
-            onClick = {
-                ambit.launch {
-                    //manegadorFirestore.creaDadesFake()
-                }
-            },
-            shape = RoundedCornerShape(50.dp),
-            modifier = Modifier
-                .padding(40.dp, 0.dp, 40.dp, 0.dp)
-                .fillMaxWidth()
-                .height(50.dp)
-        ) {
-            Text(text = "Parides diverses".uppercase())
-        }
         Spacer(modifier = Modifier.height(64.dp))
     }
 }

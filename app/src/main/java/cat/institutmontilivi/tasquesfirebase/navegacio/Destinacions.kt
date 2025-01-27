@@ -41,20 +41,25 @@ object DestinacioLogin
 object DestinacioRegistre
 
 @Serializable
-object DestinacioRecuperaMotDePas
+object DestinacioPerfil
 
 @Serializable
-object DestinacioPerfil
+object DestinacioEstats
 
 @Serializable
 object DestinacioCategories
 
 @Serializable
-data class DestinacioTasques (val idCategoria:String? = null)
+object DestinacioTasques
 
 @Serializable
-object DestinacioEstats
+data class DestinacioTasca (val idTasca:String? = null)
 
+@Serializable
+data class DestinacioCategoria (val idCategoria:String? = null)
+
+@Serializable
+data class DestinacioEstat(val idEstat:String? = null)
 
 data class OpcioDrawer<T:Any>(val ruta:T, val iconaNoSeleccionada: ImageVector, val iconaSeleccionada: ImageVector, val titol:String, val mostraInsignia:Boolean = false, val IconaInsignia: ImageVector = Icons.Default.Star)
 
@@ -62,7 +67,7 @@ val opcionsDrawer = listOf(
     OpcioDrawer(DestinacioPortada, Icons.Outlined.Home, Icons.Filled.Home, "Portada"),
     OpcioDrawer(DestinacioPerfil, Icons.Outlined.SwitchAccount, Icons.Filled.SwitchAccount, "Perfil"),
     OpcioDrawer(DestinacioCategories, Icons.Outlined.Category, Icons.Filled.Category, "Categories"),
-    OpcioDrawer(DestinacioTasques(), Icons.Outlined.Task, Icons.Filled.Task, "Tasques"),
+    OpcioDrawer(DestinacioTasques, Icons.Outlined.Task, Icons.Filled.Task, "Tasques"),
     OpcioDrawer(DestinacioEstats, Icons.Outlined.PunchClock, Icons.Filled.PunchClock, "Estats"),
     OpcioDrawer(DestinacioPreferencies, Icons.Outlined.Settings, Icons.Filled.Settings, "Preferències"),
     OpcioDrawer(DestinacioInstruccions, Icons.Outlined.Info, Icons.Filled.Info, "Instruccions"),

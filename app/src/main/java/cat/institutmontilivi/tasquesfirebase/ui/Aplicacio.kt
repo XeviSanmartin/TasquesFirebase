@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Login
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Login
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerState
@@ -44,13 +46,17 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import cat.institutmontilivi.tasquesfirebase.R
 import cat.institutmontilivi.tasquesfirebase.analitiques.ManegadorAnalitiques
+import cat.institutmontilivi.tasquesfirebase.navegacio.DestinacioCategoria
 import cat.institutmontilivi.tasquesfirebase.navegacio.DestinacioCategories
+import cat.institutmontilivi.tasquesfirebase.navegacio.DestinacioEstat
 import cat.institutmontilivi.tasquesfirebase.navegacio.DestinacioEstats
 import cat.institutmontilivi.tasquesfirebase.navegacio.DestinacioInstruccions
 import cat.institutmontilivi.tasquesfirebase.navegacio.DestinacioPerfil
 import cat.institutmontilivi.tasquesfirebase.navegacio.DestinacioPortada
 import cat.institutmontilivi.tasquesfirebase.navegacio.DestinacioPreferencies
 import cat.institutmontilivi.tasquesfirebase.navegacio.DestinacioQuantA
+import cat.institutmontilivi.tasquesfirebase.navegacio.DestinacioRegistre
+import cat.institutmontilivi.tasquesfirebase.navegacio.DestinacioTasca
 import cat.institutmontilivi.tasquesfirebase.navegacio.DestinacioTasques
 import cat.institutmontilivi.tasquesfirebase.navegacio.GrafDeNavegacio
 import cat.institutmontilivi.tasquesfirebase.navegacio.opcionsDrawer
@@ -182,6 +188,13 @@ private fun esPotObrirElDrawer(destinacioActual: NavDestination?) = listOf(
     DestinacioEstats::class,
 
 ).any { destinacioActual?.hasRoute(it) ?: true }
+
+private fun esPotAnarEnrera(destinacioActual: NavDestination?) = listOf(
+    DestinacioRegistre::class,
+    DestinacioTasca::class,
+    DestinacioCategoria::class,
+    DestinacioEstat::class,
+    ).any { destinacioActual?.hasRoute(it) ?: true }
 //endregion
 
 
@@ -225,7 +238,7 @@ fun Bastida(
                             )
                         }
                     }
-                    else{
+                    else if (esPotAnarEnrera(destinacioActual)){
                         IconButton(onClick = {
                             controladorDeNavegacio.navigateUp()
                             manegadorAnalitiques.registreClicABoto("Fletxa enrera")
@@ -237,6 +250,16 @@ fun Bastida(
                             )
                         }
                     }
+                    else {
+                        IconButton(onClick = {}) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.Login,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
+                    }
+
                 })
         }
 

@@ -86,37 +86,6 @@ fun PantallaLogin(
     val context = LocalContext.current
     val ambitDeCorrutina = rememberCoroutineScope()
 
-//region Versió vella que utilitzava Google Singing
-//    //Registrem un launcher fer fer l'inici de sessió amb Google
-//    val launcherIniciDeSessioAmbGoogle = rememberLauncherForActivityResult(
-//        //Llencem un activityForResult
-//        contract = ActivityResultContracts.StartActivityForResult()) { result ->
-//        //GoogleSignIn.getSignedInAccountFromIntent(result.data)) obre una activity de Google on
-//        //L'usuari es valida, i ens retornarà una resposta que contindrà el compte de google o un error
-//        when(val resposta = manegadorAutentificacio.manegaResultatIniciSessio(GoogleSignIn.getSignedInAccountFromIntent(result.data))) {
-//            is RespostaDAutentificacio.Exit -> {
-//                //Del compte de google volem les credencials, per tal de poder iniciar sessió amb Firebase
-//                val credencial = GoogleAuthProvider.getCredential(resposta.dades.idToken, null)
-//                ambit.launch {
-//                    val usuariFirebase = manegadorAutentificacio.iniciDeSessioAmbCredencials(credencial)
-//                    if (usuariFirebase != null){
-//                        navegaAInici()
-//                    }
-//                }
-//            }
-//            is RespostaDAutentificacio.Fracas -> {
-//                manegadorAnalitiques.registraError("Error d'autentificació: ${resposta.missatgeError}")
-//                error = true
-//                missatgeError= resposta.missatgeError
-//            }
-//            else -> {
-//                error = true
-//                manegadorAnalitiques.registraError("Hi ha hagut un error inesperat")
-//                missatgeError = "Hi ha hagut un error inesperat"
-//            }
-//        }
-//    }
-    //endregion
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -228,18 +197,20 @@ fun PantallaLogin(
             Text(text = "-------- o --------", style = TextStyle(color = Color.Gray))
         }
         Spacer(modifier = Modifier.height(25.dp))
-        BotoXarxaSocial(
-            onClick = {
-                manegadorAnalitiques.registreClicABoto("Continua com a convidat")
-                ambitDeCorrutina.launch{
-                    IniciDeSessioIncognit(manegadorAutentificacio, navegaAInici, manegadorAnalitiques)
-                }
-            },
-            text = "Continua com a convidat",
-            icon = R.drawable.ic_incognit,
-            colorFons = MaterialTheme.colorScheme.inverseSurface, // Color(0xFF363636)
-            colorLletra = MaterialTheme.colorScheme.inverseOnSurface
-        )
+
+        //La nostra app no permet l'accès com a convidat
+//        BotoXarxaSocial(
+//            onClick = {
+//                manegadorAnalitiques.registreClicABoto("Continua com a convidat")
+//                ambitDeCorrutina.launch{
+//                    IniciDeSessioIncognit(manegadorAutentificacio, navegaAInici, manegadorAnalitiques)
+//                }
+//            },
+//            text = "Continua com a convidat",
+//            icon = R.drawable.ic_incognit,
+//            colorFons = MaterialTheme.colorScheme.inverseSurface, // Color(0xFF363636)
+//            colorLletra = MaterialTheme.colorScheme.inverseOnSurface
+//        )
         Spacer(modifier = Modifier.height(15.dp))
         BotoXarxaSocial(
             onClick = {
@@ -252,10 +223,6 @@ fun PantallaLogin(
                         navegaAInici()
                     }
                 }
-
-                //versió vella de google Signing
-                //Enviem el launcher d'inici de sessió amb Google
-                //manegadorAutentificacio.iniciDeSessioAmbGoogle(launcherIniciDeSessioAmbGoogle)
             },
             text = "Continua amb Google",
             icon = R.drawable.ic_google,
@@ -267,9 +234,8 @@ fun PantallaLogin(
             text = AnnotatedString("Força el tancament de Crashlytics"),
             onClick = {
 
-                crashlytics.setCustomKey("clauDeProva", "valor de la prova")
-                crashlytics.log("Missatge personalitzat des d'un log")
-
+                crashlytics.setCustomKey("PANTALLA_LOGIN", "Error provocat")
+                crashlytics.log("Error provocat per a la prova de crashlitics")
                 throw RuntimeException("Això força un error a la pantalla de login")
             },
             style = TextStyle(
@@ -282,8 +248,6 @@ fun PantallaLogin(
 
     }
 }
-
-
 
 @Composable
 fun BotoXarxaSocial(onClick: () -> Unit, text: String, icon: Int, colorFons: Color, colorLletra: Color) {
@@ -318,8 +282,6 @@ fun BotoXarxaSocial(onClick: () -> Unit, text: String, icon: Int, colorFons: Col
 }
 
 
-
-
 suspend fun IniciDeSessioIncognit(
     manegadorAutentificacio: ManegadorAutentificacio,
     navegaAInici: () -> Unit,
@@ -334,7 +296,6 @@ suspend fun IniciDeSessioIncognit(
         }
     }
 }
-
 
 suspend fun IniciDeSessioCorreu(
     correu: String,

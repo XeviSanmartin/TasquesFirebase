@@ -97,24 +97,18 @@ fun GrafDeNavegacio (
             PantallaRegistre(manegadorAnalitiques, manegadorAutentificacio,navegaEnrera,navegaAInici)
         }
 
-        composable<DestinacioRecuperaMotDePas> {
-            //PantallaPreferencies()
-        }
-
         composable<DestinacioPerfil> {
             PantallaPerfil(manegadorAnalitiques, manegadorAutentificacio, navegaALogin)
         }
 
         composable<DestinacioCategories> {
 
-            //PantallaPelisPopulars(onClic = {id->controladorDeNavegacio.navigate(DestinacioActorsPeli(id))})
         }
 
 
         composable<DestinacioTasques> {
             val argument = it.toRoute<DestinacioTasques>()
 
-            //PantallaLlistaActors()
         }
     }
 

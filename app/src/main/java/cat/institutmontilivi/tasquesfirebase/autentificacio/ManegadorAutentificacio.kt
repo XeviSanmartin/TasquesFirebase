@@ -1,26 +1,15 @@
 package cat.institutmontilivi.tasquesfirebase.autentificacio
 
 import android.content.Context
-import android.content.Intent
 import android.util.Log
-import androidx.activity.result.ActivityResultLauncher
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
-import cat.institutmontilivi.tasquesfirebase.R
-import com.google.android.gms.auth.api.identity.Identity
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.tasks.Task
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
-import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
@@ -40,8 +29,7 @@ class ManegadorAutentificacio (private val context: Context){
     private val autentificacio: FirebaseAuth by lazy {
         Firebase.auth
     }
-    //Versió vella que utilitzava el Google Signing
-    //private val manegadorIniciSessio = Identity.getSignInClient(context)
+
 
     private val manegadorDeCredencials = CredentialManager.create(context)
 
@@ -87,8 +75,6 @@ class ManegadorAutentificacio (private val context: Context){
     suspend fun tancaSessio() {
 
         manegadorDeCredencials.clearCredentialState(ClearCredentialStateRequest())
-       //validacio google antiga
-       //manegadorIniciSessio.signOut()
         autentificacio.signOut()
     }
 
@@ -98,40 +84,6 @@ class ManegadorAutentificacio (private val context: Context){
 
     fun hiHaUsuariIniciat() =obtenUsuariActual() != null
 
-    //region Versió vella a través de Google Signing
-//    private val clientIniciSessioGoogle: GoogleSignInClient by lazy {
-//        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-//            .requestIdToken(context.getString(R.string.ClauDeLaApiWeb))
-//            .requestEmail()
-//            .build()
-//        GoogleSignIn.getClient(context, gso)
-//    }
-//
-//    fun manegaResultatIniciSessio(task: Task<GoogleSignInAccount>): RespostaDAutentificacio<GoogleSignInAccount>? {
-//        return try {
-//            val compte = task.getResult(ApiException::class.java)
-//            RespostaDAutentificacio.Exit(compte)
-//        } catch (e: ApiException) {
-//            RespostaDAutentificacio.Fracas(e.message ?: "No s'ha pogut iniciar sessió amb Google")
-//        }
-//    }
-//
-//    suspend fun iniciDeSessioAmbCredencials(credencial: AuthCredential): RespostaDAutentificacio<FirebaseUser>? {
-//        return try {
-//            val usuariDeFirebase = autentificacio.signInWithCredential(credencial).await()
-//            usuariDeFirebase.user?.let {
-//                RespostaDAutentificacio.Exit(it)
-//            } ?: throw Exception("Ha fallat l'inici de sessió amb Google")
-//        } catch (e: Exception) {
-//            RespostaDAutentificacio.Fracas(e.message ?: "Ha fallat l'inici de sessió amb Google")
-//        }
-//    }
-//
-//    fun iniciDeSessioAmbGoogle(laucherIniciDeSessioAmbGoogle: ActivityResultLauncher<Intent>) {
-//        val signInIntent = clientIniciSessioGoogle.signInIntent
-//        laucherIniciDeSessioAmbGoogle.launch(signInIntent)
-//    }
-    //endregion
 
     private suspend fun creaPeticioDeCredencials(): GetCredentialResponse
     {
