@@ -47,6 +47,9 @@ object DestinacioPerfil
 object DestinacioEstats
 
 @Serializable
+data class DestinacioEstatAltaEdicio (val idEstat:String? = null)
+
+@Serializable
 object DestinacioCategories
 
 @Serializable

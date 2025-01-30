@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cat.institutmontilivi.tasquesfirebase.analitiques.ManegadorAnalitiques
 import cat.institutmontilivi.tasquesfirebase.autentificacio.ManegadorAutentificacio
-import cat.institutmontilivi.tasquesfirebase.autentificacio.RespostaDAutentificacio
+import cat.institutmontilivi.tasquesfirebase.model.app.Resposta
 import kotlinx.coroutines.launch
 
 @Preview
@@ -148,16 +148,16 @@ private suspend fun registra(
     lateinit var resultat: Pair<Boolean, String>
     if(correu.isNotEmpty() && motDePas.isNotEmpty()) {
         when(val resposta = autentificacio.creaUsuariAmbCorreuIMotDePas(correu, motDePas)) {
-            is RespostaDAutentificacio.Exit -> {
+            is Resposta.Exit -> {
                 resultat = Pair(false,"")
                 when (val respostaLogin = autentificacio.iniciaSessioAmbCorreuIMotDePas(correu, motDePas))
                 {
-                    is RespostaDAutentificacio.Exit->{navegaAInici()}
-                    is RespostaDAutentificacio.Fracas ->{navegaEnrera}
+                    is Resposta.Exit->{navegaAInici()}
+                    is Resposta.Fracas ->{navegaEnrera}
                 }
                 navegaAInici()
             }
-            is RespostaDAutentificacio.Fracas -> {
+            is Resposta.Fracas -> {
                 resultat = Pair(true,resposta.missatgeError)
             }
         }

@@ -1,8 +1,13 @@
 package cat.institutmontilivi.tasquesfirebase.model.app
 
+
+/*
+Els camps de la classe cal que siguin "var" i que tinguin un valor per defecte per tal que
+es pugui fer la deserialització automàtica de Firestore.
+ */
 data class Estat(
-    val id:String,
-    val nom:String,
-    val colorFons:String,
-    val colorText:String,
+    var id:String = "",
+    var nom:String = "",
+    var colorFons:String = "",
+    var colorText:String ="",
 )

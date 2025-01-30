@@ -1,5 +1,7 @@
 package cat.institutmontilivi.tasquesfirebase.ui.pantalles
 
+import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -40,18 +42,19 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cat.institutmontilivi.tasquesfirebase.R
 import cat.institutmontilivi.tasquesfirebase.analitiques.ManegadorAnalitiques
 import cat.institutmontilivi.tasquesfirebase.autentificacio.ManegadorAutentificacio
-import cat.institutmontilivi.tasquesfirebase.autentificacio.RespostaDAutentificacio
-import cat.institutmontilivi.tasquesfirebase.ui.PantallaDeLAplicacio
+import cat.institutmontilivi.tasquesfirebase.dades.BBDDFactory
+import cat.institutmontilivi.tasquesfirebase.model.app.Resposta
+import cat.institutmontilivi.tasquesfirebase.model.app.Usuari
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import java.lang.RuntimeException
+
 
 //@Preview
 //@Composable
@@ -85,6 +88,7 @@ fun PantallaLogin(
     var missatgeError by remember { mutableStateOf("") }
     val context = LocalContext.current
     val ambitDeCorrutina = rememberCoroutineScope()
+
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -135,7 +139,7 @@ fun PantallaLogin(
             onClick = {
                 manegadorAnalitiques.registreClicABoto("Inicia sessió amb correu i mot de pas")
                 val deferredJob = ambitDeCorrutina.async{
-                    return@async IniciDeSessioCorreu(correu, motDePas, manegadorAutentificacio, navegaAInici)
+                    return@async IniciDeSessioCorreu(correu, motDePas, manegadorAutentificacio, navegaAInici, context, ambitDeCorrutina)
                 }
                 ambitDeCorrutina.launch {
                     val resultat = deferredJob.await()
@@ -220,6 +224,23 @@ fun PantallaLogin(
                     missatgeError = "Ha fallat l'autentificació amb Google"
                     if(!error)
                     {
+                        val bbdd = BBDDFactory.obtenRepositoriUsuaris(context, BBDDFactory.DatabaseType.FIREBASE)
+                        ambitDeCorrutina.launch {
+                            val usuari = Usuari(id= "",
+                                nom = manegadorAutentificacio.obtenUsuariActual()?.displayName?:"",
+                                cognom = "",
+                                correu = manegadorAutentificacio.obtenUsuariActual()?.email?:"",
+                                llistes = emptyList(),
+                                tasques = emptyList(),
+                                usuarisHabituals = emptyList())
+                            val resposta = bbdd.afegeixUsuari(usuari)
+                            if (resposta is Resposta.Exit)
+                                if (resposta.dades)
+                                    Log.d("INICI_DE_SESSIO", "Afegit l'usuari {correu}")
+                                else
+                                    Log.e("INICI_DE_SESSIO", "Error afegint l'usuari {correu}")
+
+                        }
                         navegaAInici()
                     }
                 }
@@ -234,9 +255,9 @@ fun PantallaLogin(
             text = AnnotatedString("Força el tancament de Crashlytics"),
             onClick = {
 
-                crashlytics.setCustomKey("PANTALLA_LOGIN", "Error provocat")
-                crashlytics.log("Error provocat per a la prova de crashlitics")
-                throw RuntimeException("Això força un error a la pantalla de login")
+//                crashlytics.setCustomKey("PANTALLA_LOGIN", "Error provocat")
+//                crashlytics.log("Error provocat per a la prova de crashlitics")
+//                throw RuntimeException("Això força un error a la pantalla de login")
             },
             style = TextStyle(
                 fontSize = 14.sp,
@@ -288,10 +309,10 @@ suspend fun IniciDeSessioIncognit(
     manegadorAnalitiques: ManegadorAnalitiques
 ) {
     when(manegadorAutentificacio.iniciaSessioAnonima()){
-        is RespostaDAutentificacio.Exit->{
+        is Resposta.Exit->{
             navegaAInici()
         }
-        is RespostaDAutentificacio.Fracas->{
+        is Resposta.Fracas->{
             manegadorAnalitiques.registraError("Error a l'iniciar la sessió incognita")
         }
     }
@@ -301,16 +322,30 @@ suspend fun IniciDeSessioCorreu(
     correu: String,
     motDePas: String,
     manegadorAutentificacio: ManegadorAutentificacio,
-    navegaAInici: () -> Unit
+    navegaAInici: () -> Unit,
+    context: Context,
+    ambitDeCorrutina: CoroutineScope
 ):Pair<Boolean,String> {
     lateinit var resultat: Pair<Boolean, String>
     if(correu.isNotEmpty() && motDePas.isNotEmpty()) {
         when (val resposta = manegadorAutentificacio.iniciaSessioAmbCorreuIMotDePas (correu, motDePas)) {
-            is RespostaDAutentificacio.Exit -> {
+            is Resposta.Exit -> {
+
+                val bbdd = BBDDFactory.obtenRepositoriUsuaris(context, BBDDFactory.DatabaseType.FIREBASE)
+                ambitDeCorrutina.launch {
+                    val usuari = Usuari(id= "", nom = "nom", cognom = "cognom", correu = correu, llistes = emptyList(), tasques = emptyList(), usuarisHabituals = emptyList())
+                    val respostaAfegeixUsuari = bbdd.afegeixUsuari(usuari)
+                    if (respostaAfegeixUsuari is Resposta.Exit)
+                        if (respostaAfegeixUsuari.dades)
+                            Log.d("INICI_DE_SESSIO", "Afegit l'usuari {correu}")
+                        else
+                            Log.e("INICI_DE_SESSIO", "Error afegint l'usuari {correu}")
+                }
+
                 navegaAInici()
                 resultat = Pair(false, "")
             }
-            is RespostaDAutentificacio.Fracas -> {
+            is Resposta.Fracas -> {
                 resultat = Pair(true, resposta.missatgeError)
             }
         }
@@ -327,10 +362,10 @@ suspend fun RecuperaMotDePas(
     lateinit var resultat: Pair<Boolean, String>
     if(correu.isNotEmpty()) {
         when (val resposta = manegadorAutentificacio.restableixElMotDePas (correu)) {
-            is RespostaDAutentificacio.Exit -> {
+            is Resposta.Exit -> {
                 resultat = Pair(false, "")
             }
-            is RespostaDAutentificacio.Fracas -> {
+            is Resposta.Fracas -> {
                 resultat = Pair(true, resposta.missatgeError)
             }
         }

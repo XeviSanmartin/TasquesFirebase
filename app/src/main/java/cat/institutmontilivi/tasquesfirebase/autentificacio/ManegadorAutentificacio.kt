@@ -7,6 +7,7 @@ import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
+import cat.institutmontilivi.tasquesfirebase.model.app.Resposta
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
@@ -19,10 +20,7 @@ import kotlinx.coroutines.tasks.await
 import kotlin.coroutines.cancellation.CancellationException
 
 
-sealed class RespostaDAutentificacio<out T> {
-    data class Exit<T>(val dades: T): RespostaDAutentificacio<T>()
-    data class Fracas(val missatgeError: String): RespostaDAutentificacio<Nothing>()
-}
+
 class ManegadorAutentificacio (private val context: Context){
     private val idClientWeb="848698198631-2e7n0987pms64v55nn0mhi8alkp32iev.apps.googleusercontent.com"
     private val tag = "MANEGADOR_AUTENTIFICACIO"
@@ -34,41 +32,41 @@ class ManegadorAutentificacio (private val context: Context){
     private val manegadorDeCredencials = CredentialManager.create(context)
 
 
-    suspend fun iniciaSessioAnonima(): RespostaDAutentificacio<FirebaseUser> {
+    suspend fun iniciaSessioAnonima(): Resposta<FirebaseUser> {
         return try {
             val result = autentificacio.signInAnonymously().await()
-            RespostaDAutentificacio.Exit(result.user ?: throw Exception("Error a l'iniciar la sessió"))
+            Resposta.Exit(result.user ?: throw Exception("Error a l'iniciar la sessió"))
         } catch(e: Exception) {
-            RespostaDAutentificacio.Fracas(e.message ?: "Error a l'iniciar la sessió")
+            Resposta.Fracas(e.message ?: "Error a l'iniciar la sessió")
         }
     }
 
 
 
-    suspend fun creaUsuariAmbCorreuIMotDePas(correu: String, motDePas: String): RespostaDAutentificacio<FirebaseUser?> {
+    suspend fun creaUsuariAmbCorreuIMotDePas(correu: String, motDePas: String): Resposta<FirebaseUser?> {
         return try {
             val authResult = autentificacio.createUserWithEmailAndPassword(correu, motDePas).await()
-            RespostaDAutentificacio.Exit(authResult.user)
+            Resposta.Exit(authResult.user)
         } catch(e: Exception) {
-            RespostaDAutentificacio.Fracas(e.message ?: "Error al crear l'usuari")
+            Resposta.Fracas(e.message ?: "Error al crear l'usuari")
         }
     }
 
-    suspend fun iniciaSessioAmbCorreuIMotDePas(correu: String, motDePas: String): RespostaDAutentificacio<FirebaseUser?> {
+    suspend fun iniciaSessioAmbCorreuIMotDePas(correu: String, motDePas: String): Resposta<FirebaseUser?> {
         return try {
             val authResult = autentificacio.signInWithEmailAndPassword(correu, motDePas).await()
-            RespostaDAutentificacio.Exit(authResult.user)
+            Resposta.Exit(authResult.user)
         } catch(e: Exception) {
-            RespostaDAutentificacio.Fracas(e.message ?: "Error a l'iniciar la sessió")
+            Resposta.Fracas(e.message ?: "Error a l'iniciar la sessió")
         }
     }
 
-    suspend fun restableixElMotDePas(correu: String): RespostaDAutentificacio<Unit> {
+    suspend fun restableixElMotDePas(correu: String): Resposta<Unit> {
         return try {
             autentificacio.sendPasswordResetEmail(correu).await()
-            RespostaDAutentificacio.Exit(Unit)
+            Resposta.Exit(Unit)
         } catch(e: Exception) {
-            RespostaDAutentificacio.Fracas(e.message ?: "No s'ha pogut restablir el mot de pas")
+            Resposta.Fracas(e.message ?: "No s'ha pogut restablir el mot de pas")
         }
     }
 

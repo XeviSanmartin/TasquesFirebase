@@ -97,6 +97,8 @@ dependencies {
     //Descàrregues d'imatges d'Internet
     implementation ("io.coil-kt:coil-compose:2.5.0")
 
+    //ColorPicker
+    implementation("com.github.skydoves:colorpicker-compose:1.1.2")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
