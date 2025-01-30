@@ -12,7 +12,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
@@ -36,7 +35,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -51,12 +49,22 @@ fun PantallaEstats(viewModel: ViewModelEstats = ViewModelEstats())
 {
     val estat = viewModel.estat.collectAsState()
     var mostraDialegAfegeixEstat by remember { mutableStateOf(false) }
+    var mostraDialegActualitzaEstat by remember { mutableStateOf(false) }
+    var estatEditat = Estat()
 
     val afegeixEstat = { estat: Estat -> viewModel.afegeixEstat(estat) }
     val eliminaEstat = { id: String -> viewModel.eliminaEstat(id) }
     val actualizaEstat = {estat:Estat -> viewModel.actualitzaEstat(estat) }
+    val editaEstat = { estat: Estat ->
+        estatEditat = estat
+        mostraDialegActualitzaEstat = true
+    }
 
-    val onDialogDismissed = { mostraDialegAfegeixEstat = false}
+
+    val onDialogDismissed = {
+        mostraDialegAfegeixEstat = false
+        mostraDialegActualitzaEstat = false
+    }
 
     Scaffold(
         floatingActionButton = {
@@ -67,6 +75,9 @@ fun PantallaEstats(viewModel: ViewModelEstats = ViewModelEstats())
         if (mostraDialegAfegeixEstat){
             DialegAfegeixEstat(afegeixEstat, onDialogDismissed)
         }
+            if (mostraDialegActualitzaEstat){
+                DialegActualitzaEstat (estatEditat, actualizaEstat, onDialogDismissed)
+            }
         }
     )
     {padding->
@@ -75,7 +86,7 @@ fun PantallaEstats(viewModel: ViewModelEstats = ViewModelEstats())
         {
             items(estat.value.estats)
             {
-                ElementEstat(it, eliminaEstat, actualizaEstat)
+                ElementEstat(it, eliminaEstat, editaEstat)
             }
         }
 
@@ -92,7 +103,7 @@ fun ElementEstat(
         colorText = "#FFBBBBBB"
     ),
     eliminaEstat: (String) -> Unit={},
-    actualizaEstat: (Estat) -> Unit={}
+    editaEstat: (Estat) -> Unit={}
 )
 {
     Row(
@@ -120,7 +131,7 @@ fun ElementEstat(
             Icon(Icons.Filled.Delete, "Elimina", tint = MaterialTheme.colorScheme.onError)
         }
         IconButton(
-            onClick = { },
+            onClick = { editaEstat(estat)},
             modifier = Modifier
                 .padding(8.dp)
                 .align(Alignment.CenterVertically)
@@ -134,7 +145,7 @@ fun ElementEstat(
 
 
 @Composable
-fun DialegAfegeixEstat(onAfegeixEstat: (Estat) -> Unit, onDialogDismissed: () -> Unit) {
+fun DialegAfegeixEstat(afegeixEstat: (Estat) -> Unit, onDialogDismissed: () -> Unit) {
     var nom by remember { mutableStateOf("") }
     var colorText by remember { mutableStateOf("#FF000000") }
     var colorFons by remember { mutableStateOf("#FFFFFFFF") }
@@ -151,13 +162,12 @@ fun DialegAfegeixEstat(onAfegeixEstat: (Estat) -> Unit, onDialogDismissed: () ->
                                 colorText = colorText,
                                 colorFons = colorFons
                             )
-                            onAfegeixEstat(estatNou)
+                            afegeixEstat(estatNou)
                             nom = ""
                             colorText = "#FF000000"
                             colorFons = "#FFFFFFFF"
                             onDialogDismissed()
                         }
-
                 ) {
                     Text(text = "Afegeix")
                 }
@@ -208,6 +218,80 @@ fun DialegAfegeixEstat(onAfegeixEstat: (Estat) -> Unit, onDialogDismissed: () ->
     )
 }
 
+@Composable
+fun DialegActualitzaEstat(estat: Estat, actualitzaEstat: (Estat) -> Unit, onDialogDismissed: () -> Unit) {
+    var nom by remember { mutableStateOf(estat.nom) }
+    var colorText by remember { mutableStateOf(estat.colorText) }
+    var colorFons by remember { mutableStateOf(estat.colorFons) }
 
+    AlertDialog(
+        onDismissRequest = onDialogDismissed,
+        title = { Text(text = "Modifica l'estat") },
+        confirmButton = {
+            if (nom.isNotEmpty()) {
+                Button(
+                    onClick = {
+                        val estatNou = Estat(
+                            id = estat.id,
+                            nom = nom,
+                            colorText = colorText,
+                            colorFons = colorFons
+                        )
+                        actualitzaEstat(estatNou)
+                        nom = ""
+                        colorText = "#FF000000"
+                        colorFons = "#FFFFFFFF"
+                        onDialogDismissed()
+                    }
+
+                ) {
+                    Text(text = "Modifica")
+                }
+            }
+        },
+        dismissButton = {
+            Button(
+                onClick = {
+                    onDialogDismissed()
+                }
+            ) {
+                Text(text = "Cancel·la")
+            }
+        },
+        text = {
+            Column {
+                TextField(
+                    value = nom,
+                    onValueChange = { nom = it },
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text),
+                    label = { Text(text = "Nom de l'estat") }
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                TextField(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(100.dp),
+                    value = colorFons,
+                    onValueChange = { colorFons = it },
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Ascii),
+                    maxLines = 1,
+                    label = { Text(text = "Color del fons") }
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+                TextField(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(100.dp),
+                    value = colorText,
+                    onValueChange = { colorText = it },
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Ascii),
+                    maxLines = 1,
+                    label = { Text(text = "Color del text") }
+                )
+            }
+        }
+    )
+}
 
 

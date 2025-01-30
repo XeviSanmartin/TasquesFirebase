@@ -3,7 +3,9 @@ package cat.institutmontilivi.tasquesfirebase.dades
 import cat.institutmontilivi.tasquesfirebase.firestore.ManegadorFirestore
 import cat.institutmontilivi.tasquesfirebase.model.app.Estat
 import cat.institutmontilivi.tasquesfirebase.model.app.Resposta
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
@@ -11,22 +13,27 @@ import kotlinx.coroutines.tasks.await
 class EstatsFirebaseRemoteDataSource( manegadorFirestore: ManegadorFirestore) : EstatsRepositori{
     val db = manegadorFirestore
 
-    override suspend fun obtenEstats(): Flow<Resposta<List<Estat>>> {
+    override suspend fun obtenEstats(): Flow<Resposta<List<Estat>>>  = callbackFlow{
         var llista = mutableListOf<Estat>()
         try{
             val refEstats = db.firestoreDb.collection(db.ESTATS)
-            refEstats.get().await().documents.mapNotNullTo(llista){document ->
-                document.toObject(Estat::class.java)
-            }
-        }catch (e: Exception) {
-            return flow {
-                emit(Resposta.Fracas(e.message ?: "Error obtenint llista d'estats"))
-            }
-        }
 
-        return flow {
-            emit (Resposta.Exit(llista))
-        }
+            val subscripcio = refEstats.addSnapshotListener{
+                snapshot, _ ->
+                snapshot?.let { querySnapshot ->  //Si l'snapshot no es null, processem la llista de documents
+                    val estats = mutableListOf<Estat>()
+                    for (document in querySnapshot.documents) {
+                        val estat = document.toObject(Estat::class.java)
+                        estat?.let { estats.add(it) }
+                    }
+
+                    trySend(Resposta.Exit(estats)).isSuccess
+                }
+            }
+            awaitClose { subscripcio.remove() }
+        }catch (e: Exception) {
+            trySend (Resposta.Fracas(e.message ?: "Error obtenint llista d'estats"))
+            }
     }
 
     override suspend fun afegeixEstat(estat: Estat): Resposta<Boolean> {

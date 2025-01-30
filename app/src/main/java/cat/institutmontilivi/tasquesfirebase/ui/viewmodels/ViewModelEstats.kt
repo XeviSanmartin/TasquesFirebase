@@ -46,39 +46,40 @@ class ViewModelEstats :ViewModel() {
         }
     }
 
-    fun obtenEstats()
-    {
-        viewModelScope.launch (Dispatchers.IO){
-            _estat.emit ( _estat.value.copy(estaCarregant = true))
-            estatsRepositori.obtenEstats().collect{
+
+
+fun obtenEstats()
+{
+    viewModelScope.launch (Dispatchers.IO){
+        _estat.emit ( _estat.value.copy(estaCarregant = true))
+        estatsRepositori.obtenEstats().collect{
                 resposta ->
-                    if(resposta is Resposta.Exit)
-                    {
-                        val dades = resposta.dades
-                        _estat.emit(
-                            estat.value.copy(
-                                estaCarregant = false,
-                                estats = dades,
-                                esErroni = false,
-                                missatgeError = ""
-                            )
-                        )
-                    }
-                else if(resposta is Resposta.Fracas)
-                    {
-                        _estat.emit(
-                            estat.value.copy(
-                                estaCarregant = false,
-                                estats = listOf(),
-                                esErroni = true,
-                                missatgeError = resposta.missatgeError
-                            )
-                        )
-                    }
+            if(resposta is Resposta.Exit)
+            {
+                val dades = resposta.dades
+                _estat.emit(
+                    estat.value.copy(
+                        estaCarregant = false,
+                        estats = dades,
+                        esErroni = false,
+                        missatgeError = ""
+                    )
+                )
+            }
+            else if(resposta is Resposta.Fracas)
+            {
+                _estat.emit(
+                    estat.value.copy(
+                        estaCarregant = false,
+                        estats = listOf(),
+                        esErroni = true,
+                        missatgeError = resposta.missatgeError
+                    )
+                )
             }
         }
     }
-
+}
     fun eliminaEstat(id:String)
     {
         viewModelScope.launch (Dispatchers.IO){
