@@ -15,10 +15,13 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DoDisturb
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.outlined.DoDisturb
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -33,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
@@ -41,6 +45,9 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import cat.institutmontilivi.tasquesfirebase.model.app.Estat
 import cat.institutmontilivi.tasquesfirebase.ui.viewmodels.ViewModelEstats
+import com.github.skydoves.colorpicker.compose.ColorEnvelope
+import com.github.skydoves.colorpicker.compose.HsvColorPicker
+import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 
 
 @Preview
@@ -149,6 +156,9 @@ fun DialegAfegeixEstat(afegeixEstat: (Estat) -> Unit, onDialogDismissed: () -> U
     var nom by remember { mutableStateOf("") }
     var colorText by remember { mutableStateOf("#FF000000") }
     var colorFons by remember { mutableStateOf("#FFFFFFFF") }
+    val controladoPaletaDeColors = rememberColorPickerController()
+    var seleccionaFons by remember { mutableStateOf(false) }
+
 
     AlertDialog(
         onDismissRequest = {},
@@ -184,6 +194,17 @@ fun DialegAfegeixEstat(afegeixEstat: (Estat) -> Unit, onDialogDismissed: () -> U
         },
         text = {
             Column {
+                Text(
+                    text = nom,
+                    modifier = Modifier.padding(8.dp)
+                        .fillMaxWidth()
+                        .background(Color(colorFons.toColorInt())),
+                    style = MaterialTheme.typography.displayMedium,
+                    color = Color(colorText.toColorInt())
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                HorizontalDivider(modifier = Modifier.fillMaxWidth().height(2.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 TextField(
                     value = nom,
                     onValueChange = { nom = it },
@@ -191,27 +212,86 @@ fun DialegAfegeixEstat(afegeixEstat: (Estat) -> Unit, onDialogDismissed: () -> U
                     label = { Text(text = "Nom de l'estat") }
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                TextField(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(100.dp),
-                    value = colorFons,
-                    onValueChange = { colorFons = it },
-                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Ascii),
-                    maxLines = 1,
-                    label = { Text(text = "Color del fons") }
-                )
+                Row()
+                {
+                    TextField(
+                        modifier = Modifier
+                            .weight(3F),
+                        value = colorFons,
+                        onValueChange = { colorFons = it },
+                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Ascii),
+                        maxLines = 1,
+                        label = { Text(text = "Color del fons") }
+
+                    )
+                    IconButton(
+                        onClick = { seleccionaFons = true },
+                        modifier = Modifier
+                            .weight(1F)
+                            .padding(8.dp)
+                            .align(Alignment.CenterVertically)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(MaterialTheme.colorScheme.secondary)
+                            .alpha(if (seleccionaFons) 1F else 0.7F)
+
+                    ) {
+                        Icon(
+                            if (seleccionaFons)
+                                Icons.Filled.Edit
+                            else
+                                Icons.Filled.DoDisturb,
+                            "Modifica", tint = MaterialTheme.colorScheme.onSecondary
+                        )
+                    }
+                }
+
 
                 Spacer(modifier = Modifier.height(8.dp))
-                TextField(
+
+                Row()
+                {
+                    TextField(
+                        modifier = Modifier
+                            .weight(3F),
+                        value = colorText,
+                        onValueChange = { colorText = it },
+                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Ascii),
+                        maxLines = 1,
+                        label = { Text(text = "Color del text") }
+                    )
+                    IconButton(
+                        onClick = { seleccionaFons = false },
+                        modifier = Modifier
+                            .weight(1F)
+                            .padding(8.dp)
+                            .align(Alignment.CenterVertically)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(MaterialTheme.colorScheme.secondary)
+                            .alpha(if (!seleccionaFons) 1F else 0.7F)
+
+                    ) {
+                        Icon(
+                            if (seleccionaFons == false)
+                                Icons.Filled.Edit
+                            else
+                                Icons.Filled.DoDisturb,
+                            "Modifica", tint = MaterialTheme.colorScheme.onSecondary
+                        )
+                    }
+                }
+                HsvColorPicker(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(100.dp),
-                    value = colorText,
-                    onValueChange = { colorText = it },
-                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Ascii),
-                    maxLines = 1,
-                    label = { Text(text = "Color del text") }
+                        .height(450.dp)
+                        .padding(10.dp),
+                    controller = controladoPaletaDeColors,
+                    onColorChanged = { colorEnvelope: ColorEnvelope ->
+                        if (seleccionaFons) {
+                            colorFons = "#${colorEnvelope.hexCode}"
+                        } else {
+                            colorText = "#${colorEnvelope.hexCode}"
+                        }
+                    }
                 )
             }
         }
@@ -223,6 +303,8 @@ fun DialegActualitzaEstat(estat: Estat, actualitzaEstat: (Estat) -> Unit, onDial
     var nom by remember { mutableStateOf(estat.nom) }
     var colorText by remember { mutableStateOf(estat.colorText) }
     var colorFons by remember { mutableStateOf(estat.colorFons) }
+    val controladoPaletaDeColors = rememberColorPickerController()
+    var seleccionaFons by remember { mutableStateOf(false) }
 
     AlertDialog(
         onDismissRequest = onDialogDismissed,
@@ -243,7 +325,6 @@ fun DialegActualitzaEstat(estat: Estat, actualitzaEstat: (Estat) -> Unit, onDial
                         colorFons = "#FFFFFFFF"
                         onDialogDismissed()
                     }
-
                 ) {
                     Text(text = "Modifica")
                 }
@@ -260,6 +341,17 @@ fun DialegActualitzaEstat(estat: Estat, actualitzaEstat: (Estat) -> Unit, onDial
         },
         text = {
             Column {
+                Text(
+                    text = nom,
+                    modifier = Modifier.padding(8.dp)
+                        .fillMaxWidth()
+                        .background(Color(colorFons.toColorInt())),
+                    style = MaterialTheme.typography.displayMedium,
+                    color = Color(colorText.toColorInt())
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                HorizontalDivider(modifier = Modifier.fillMaxWidth().height(2.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 TextField(
                     value = nom,
                     onValueChange = { nom = it },
@@ -267,29 +359,88 @@ fun DialegActualitzaEstat(estat: Estat, actualitzaEstat: (Estat) -> Unit, onDial
                     label = { Text(text = "Nom de l'estat") }
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                TextField(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(100.dp),
-                    value = colorFons,
-                    onValueChange = { colorFons = it },
-                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Ascii),
-                    maxLines = 1,
-                    label = { Text(text = "Color del fons") }
-                )
+                Row()
+                {
+                    TextField(
+                        modifier = Modifier
+                            .weight(3F),
+                        value = colorFons,
+                        onValueChange = { colorFons = it },
+                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Ascii),
+                        maxLines = 1,
+                        label = { Text(text = "Color del fons") }
+
+                    )
+                    IconButton(
+                        onClick = { seleccionaFons = true },
+                        modifier = Modifier
+                            .weight(1F)
+                            .padding(8.dp)
+                            .align(Alignment.CenterVertically)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(MaterialTheme.colorScheme.secondary)
+                            .alpha(if(seleccionaFons) 1F else 0.7F)
+
+                    ){
+                        Icon(
+                            if (seleccionaFons)
+                                Icons.Filled.Edit
+                            else
+                                Icons.Filled.DoDisturb,
+                            "Modifica", tint = MaterialTheme.colorScheme.onSecondary)
+                    }
+                }
+
 
                 Spacer(modifier = Modifier.height(8.dp))
-                TextField(
+
+                Row()
+                {
+                    TextField(
+                        modifier = Modifier
+                            .weight(3F),
+                        value = colorText,
+                        onValueChange = { colorText = it },
+                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Ascii),
+                        maxLines = 1,
+                        label = { Text(text = "Color del text") }
+                    )
+                    IconButton(
+                        onClick = { seleccionaFons = false },
+                        modifier = Modifier
+                            .weight(1F)
+                            .padding(8.dp)
+                            .align(Alignment.CenterVertically)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(MaterialTheme.colorScheme.secondary)
+                            .alpha(if(!seleccionaFons) 1F else 0.7F)
+
+                    ){
+                        Icon(
+                            if (seleccionaFons==false)
+                                Icons.Filled.Edit
+                            else
+                                Icons.Filled.DoDisturb,
+                            "Modifica", tint = MaterialTheme.colorScheme.onSecondary)
+                    }
+                }
+                HsvColorPicker(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(100.dp),
-                    value = colorText,
-                    onValueChange = { colorText = it },
-                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Ascii),
-                    maxLines = 1,
-                    label = { Text(text = "Color del text") }
+                        .height(450.dp)
+                        .padding(10.dp),
+                    controller = controladoPaletaDeColors,
+                    onColorChanged = { colorEnvelope: ColorEnvelope ->
+                        if (seleccionaFons){
+                        colorFons = "#${colorEnvelope.hexCode}"
+                            }
+                        else
+                        {
+                            colorText = "#${colorEnvelope.hexCode}"
+                        }
+                    }
                 )
-            }
+                }
         }
     )
 }

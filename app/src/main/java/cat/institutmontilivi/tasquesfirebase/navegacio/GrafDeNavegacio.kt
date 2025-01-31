@@ -14,7 +14,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import cat.institutmontilivi.tasquesfirebase.analitiques.ManegadorAnalitiques
 import cat.institutmontilivi.tasquesfirebase.autentificacio.ManegadorAutentificacio
-import cat.institutmontilivi.tasquesfirebase.ui.pantalles.PantallaEstatAltaEdicio
 import cat.institutmontilivi.tasquesfirebase.ui.pantalles.PantallaEstats
 import cat.institutmontilivi.tasquesfirebase.ui.pantalles.PantallaLogin
 import cat.institutmontilivi.tasquesfirebase.ui.pantalles.PantallaPerfil
@@ -66,11 +65,6 @@ fun GrafDeNavegacio (
         launchSingleTop = true
     }}
 
-    val navegaAEstatAltaEdicio = {controladorDeNavegacio.navigate(DestinacioEstatAltaEdicio){
-        popUpTo(controladorDeNavegacio.graph.findStartDestination().id) { inclusive = false }
-        launchSingleTop = true
-    }}
-
     val navegaEnrera: ()->Unit = {controladorDeNavegacio.popBackStack()}
     //endregion
 
@@ -111,11 +105,6 @@ fun GrafDeNavegacio (
         composable<DestinacioEstats> {
             val argument = it.toRoute<DestinacioEstats>()
             PantallaEstats()
-        }
-
-        composable<DestinacioEstatAltaEdicio> {
-            val argument = it.toRoute<DestinacioTasques>()
-            PantallaEstatAltaEdicio()
         }
 
         composable<DestinacioCategories> {
