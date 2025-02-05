@@ -46,17 +46,13 @@ object DestinacioPerfil
 @Serializable
 object DestinacioEstats
 
-@Serializable
-object DestinacioCategories
 
 @Serializable
-object DestinacioTasques
+data class DestinacioTasques (val idUsuari:String)
 
 @Serializable
 data class DestinacioTasca (val idTasca:String? = null)
 
-@Serializable
-data class DestinacioCategoria (val idCategoria:String? = null)
 
 @Serializable
 data class DestinacioEstat(val idEstat:String? = null)
@@ -66,8 +62,7 @@ data class OpcioDrawer<T:Any>(val ruta:T, val iconaNoSeleccionada: ImageVector, 
 val opcionsDrawer = listOf(
     OpcioDrawer(DestinacioPortada, Icons.Outlined.Home, Icons.Filled.Home, "Portada"),
     OpcioDrawer(DestinacioPerfil, Icons.Outlined.SwitchAccount, Icons.Filled.SwitchAccount, "Perfil"),
-    OpcioDrawer(DestinacioCategories, Icons.Outlined.Category, Icons.Filled.Category, "Categories"),
-    OpcioDrawer(DestinacioTasques, Icons.Outlined.Task, Icons.Filled.Task, "Tasques"),
+    OpcioDrawer(DestinacioTasques(""), Icons.Outlined.Task, Icons.Filled.Task, "Tasques"),
     OpcioDrawer(DestinacioEstats, Icons.Outlined.PunchClock, Icons.Filled.PunchClock, "Estats"),
     OpcioDrawer(DestinacioPreferencies, Icons.Outlined.Settings, Icons.Filled.Settings, "Preferències"),
     OpcioDrawer(DestinacioInstruccions, Icons.Outlined.Info, Icons.Filled.Info, "Instruccions"),

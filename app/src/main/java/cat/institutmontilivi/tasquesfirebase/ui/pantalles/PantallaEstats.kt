@@ -43,8 +43,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
+import androidx.lifecycle.viewmodel.compose.viewModel
 import cat.institutmontilivi.tasquesfirebase.model.app.Estat
 import cat.institutmontilivi.tasquesfirebase.ui.viewmodels.ViewModelEstats
+import com.github.skydoves.colorpicker.compose.AlphaSlider
+import com.github.skydoves.colorpicker.compose.BrightnessSlider
 import com.github.skydoves.colorpicker.compose.ColorEnvelope
 import com.github.skydoves.colorpicker.compose.HsvColorPicker
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
@@ -52,7 +55,7 @@ import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 
 @Preview
 @Composable
-fun PantallaEstats(viewModel: ViewModelEstats = ViewModelEstats())
+fun PantallaEstats(viewModel: ViewModelEstats = viewModel())
 {
     val estat = viewModel.estat.collectAsState()
     var mostraDialegAfegeixEstat by remember { mutableStateOf(false) }
@@ -282,8 +285,8 @@ fun DialegAfegeixEstat(afegeixEstat: (Estat) -> Unit, onDialogDismissed: () -> U
                 HsvColorPicker(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(450.dp)
-                        .padding(10.dp),
+                        .height(100.dp)
+                        .padding(start = 8.dp),
                     controller = controladoPaletaDeColors,
                     onColorChanged = { colorEnvelope: ColorEnvelope ->
                         if (seleccionaFons) {
@@ -292,6 +295,20 @@ fun DialegAfegeixEstat(afegeixEstat: (Estat) -> Unit, onDialogDismissed: () -> U
                             colorText = "#${colorEnvelope.hexCode}"
                         }
                     }
+                )
+                BrightnessSlider(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 8.dp)
+                        .height(25.dp),
+                    controller = controladoPaletaDeColors,
+                )
+                AlphaSlider(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 8.dp)
+                        .height(25.dp),
+                    controller = controladoPaletaDeColors,
                 )
             }
         }
@@ -427,8 +444,8 @@ fun DialegActualitzaEstat(estat: Estat, actualitzaEstat: (Estat) -> Unit, onDial
                 HsvColorPicker(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(450.dp)
-                        .padding(10.dp),
+                        .height(200.dp)
+                        .padding(start = 8.dp),
                     controller = controladoPaletaDeColors,
                     onColorChanged = { colorEnvelope: ColorEnvelope ->
                         if (seleccionaFons){
@@ -440,7 +457,21 @@ fun DialegActualitzaEstat(estat: Estat, actualitzaEstat: (Estat) -> Unit, onDial
                         }
                     }
                 )
-                }
+                BrightnessSlider(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 8.dp)
+                        .height(25.dp),
+                    controller = controladoPaletaDeColors,
+                )
+                AlphaSlider(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 8.dp)
+                        .height(25.dp),
+                    controller = controladoPaletaDeColors,
+                )
+            }
         }
     )
 }

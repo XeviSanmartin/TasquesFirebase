@@ -1,7 +1,7 @@
 package cat.institutmontilivi.tasquesfirebase.dades
 
 import cat.institutmontilivi.tasquesfirebase.firestore.ManegadorFirestore
-import cat.institutmontilivi.tasquesfirebase.model.app.Categoria
+import cat.institutmontilivi.tasquesfirebase.model.app.Estat
 import cat.institutmontilivi.tasquesfirebase.model.app.Resposta
 import cat.institutmontilivi.tasquesfirebase.model.app.Tasca
 import cat.institutmontilivi.tasquesfirebase.model.app.Usuari
@@ -18,6 +18,20 @@ class UsuarisFirebaseRemoteDataSource ( manegadorFirestore: ManegadorFirestore):
         TODO("Not yet implemented")
     }
 
+    override suspend fun obtenUsuari(correu: String): Resposta<Usuari> {
+        var usuari: Usuari = Usuari()
+        try {
+            val refUsuaris = db.firestoreDb.collection(db.USUARIS)
+            val consulta = refUsuaris.whereEqualTo("correu", correu)
+            if ( consulta.get().await().documents.isEmpty())
+                throw Exception("No hi ha cap usuari amb el correu $correu")
+            usuari = consulta.get().await().documents.first().toObject(Usuari::class.java)!!
+        }catch (e: Exception) {
+            Resposta.Fracas(e.message ?: "Error cercant l'usuari $correu" )
+        }
+        return Resposta.Exit(usuari)
+    }
+
     override suspend  fun afegeixUsuari(usuari: Usuari): Resposta<Boolean> {
         var existeix = false
         try {
@@ -32,8 +46,8 @@ class UsuarisFirebaseRemoteDataSource ( manegadorFirestore: ManegadorFirestore):
             if (!existeix) {
                 val refUsuaris = db.firestoreDb.collection(db.USUARIS)
                 val refUsuariNou = refUsuaris.document()
-                val usuariNou = usuari.copy(id = refUsuariNou.id)
-                refUsuariNou.set(usuariNou)
+                usuari.id = refUsuariNou.id
+                refUsuariNou.set(usuari)
                 existeix = true
             }
         }catch(e: Exception) {
@@ -54,10 +68,6 @@ class UsuarisFirebaseRemoteDataSource ( manegadorFirestore: ManegadorFirestore):
         TODO("Not yet implemented")
     }
 
-    override suspend  fun obtenCategoriesUsuari(id: String): Resposta<List<Categoria>> {
-        TODO("Not yet implemented")
-    }
-
     override suspend fun existeixUsuari(correu: String): Resposta<Boolean> {
         var niHiEs = false
         try {
@@ -69,5 +79,37 @@ class UsuarisFirebaseRemoteDataSource ( manegadorFirestore: ManegadorFirestore):
             Resposta.Fracas(e.message ?: "Error cercant l'usuari $correu" )
         }
         return Resposta.Exit(!niHiEs)
+    }
+
+    override suspend fun eliminaTascaDeUsuari(idTasca: String, idUsuari: String): Resposta<Boolean> {
+
+        try {
+            val refUsuari = db.firestoreDb.collection(db.USUARIS)
+            val refEstat = refUsuari.document(idUsuari)
+            val usuari  = refEstat.get().await().toObject(Usuari::class.java)
+            checkNotNull(usuari)
+            val tasques = usuari.tasques.filter { it != idTasca }
+            usuari.tasques = tasques
+            refEstat.set(usuari)
+        }catch (e: Exception) {
+            return Resposta.Fracas(e.message?:"Error actualitzant la tasca $idTasca de l'usuari ${idUsuari}")
+        }
+        return Resposta.Exit(true)
+    }
+
+    override suspend fun afegeixTascaAUsuari(idTasca: String, idUsuari: String): Resposta<Boolean> {
+        try {
+            val refUsuari = db.firestoreDb.collection(db.USUARIS)
+            val refEstat = refUsuari.document(idUsuari)
+            val usuari  = refEstat.get().await().toObject(Usuari::class.java)
+            checkNotNull(usuari)
+            val tasques = usuari.tasques.toMutableList()
+            tasques.add(idTasca)
+            usuari.tasques = tasques.toList()
+            refEstat.set(usuari).await()
+        }catch (e: Exception) {
+            return Resposta.Fracas(e.message?:"Error actualitzant la tasca $idTasca de l'usuari ${idUsuari}")
+        }
+        return Resposta.Exit(true)
     }
 }

@@ -10,14 +10,12 @@ object BBDDFactory
         FIREBASE
     }
 
-    var repositoriUsuaris: EstatsRepositoriHelper? = null
-    var repositoriEstats: UsuarisRepositori? = null
 
-        fun obtenRepositoriUsuaris(context: Context?, type: DatabaseType): UsuarisRepositori {
-            return when (type) {
-                DatabaseType.FIREBASE -> UsuarisFirebaseRemoteDataSource(ManegadorFirestore())
-            }
+    fun obtenRepositoriUsuaris(context: Context?, type: DatabaseType): UsuarisRepositori {
+        return when (type) {
+            DatabaseType.FIREBASE -> UsuarisFirebaseRemoteDataSource(ManegadorFirestore())
         }
+    }
 
     fun obtenRepositoriEstats(context: Context?, type: DatabaseType): EstatsRepositori {
         return when (type) {
@@ -25,15 +23,9 @@ object BBDDFactory
         }
     }
 
-//        fun obtenRepositoriEstats(context: Context?, type: DatabaseType): EstatsRepositoriHelper {
-//            return when (type) {
-//                DatabaseType.FIREBASE ->
-//                {
-//                    if (repositoriUsuaris == null)
-//                        repositoriUsuaris = EstatsRepositoriHelperImplFirebase(ManegadorFirestore())
-//                    repositoriUsuaris!!
-//                }
-//            }
-//        }
-
+    fun obtenRepositoriTasques(context: Context?, type: DatabaseType): TasquesRepositori {
+        return when (type) {
+            DatabaseType.FIREBASE ->TasquesFirebaseRemoteDataSource(ManegadorFirestore())
+        }
+    }
 }

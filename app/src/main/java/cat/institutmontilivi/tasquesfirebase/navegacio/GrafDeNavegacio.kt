@@ -14,10 +14,12 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import cat.institutmontilivi.tasquesfirebase.analitiques.ManegadorAnalitiques
 import cat.institutmontilivi.tasquesfirebase.autentificacio.ManegadorAutentificacio
+import cat.institutmontilivi.tasquesfirebase.firestore.ManegadorFirestore
 import cat.institutmontilivi.tasquesfirebase.ui.pantalles.PantallaEstats
 import cat.institutmontilivi.tasquesfirebase.ui.pantalles.PantallaLogin
 import cat.institutmontilivi.tasquesfirebase.ui.pantalles.PantallaPerfil
 import cat.institutmontilivi.tasquesfirebase.ui.pantalles.PantallaRegistre
+import cat.institutmontilivi.tasquesfirebase.ui.pantalles.PantallaTasques
 import cat.institutmontivi.themoviedb.ui.pantalles.PantallaInstruccions
 import cat.institutmontivi.themoviedb.ui.pantalles.PantallaPortada
 import cat.institutmontivi.themoviedb.ui.pantalles.PantallaPreferencies
@@ -30,23 +32,17 @@ fun GrafDeNavegacio (
     manegadorAnalitiques: ManegadorAnalitiques,
     controladorDeNavegacio: NavHostController = rememberNavController(),
     paddingValues: PaddingValues = PaddingValues(0.dp),
-    crashlytics: FirebaseCrashlytics
+    crashlytics: FirebaseCrashlytics,
+    manegadorFirestore: ManegadorFirestore,
+    manegadorAutentificacio: ManegadorAutentificacio
 )
 {
     //val manegadorAnalitiques : ManegadorAnalitiques = ManegadorAnalitiques(LocalContext.current)
-    val manegadorAutentificacio = ManegadorAutentificacio(LocalContext.current)
-
+    //val manegadorAutentificacio = ManegadorAutentificacio(LocalContext.current)
+    //val manegadorFirestore = ManegadorFirestore()
     val usuari: FirebaseUser? = manegadorAutentificacio.obtenUsuariActual()
 
-//    controladorDeNavegacio.navigate(opcio.ruta) {
-//        popUpTo(controladorDeNavegacio.graph.findStartDestination().id){
-//            //guarda l'estat de la pantalla de la que marxem (funciona d'aquella manera,
-//            // No tots els valors es guarden))
-//            saveState = true
-//        }
-//        launchSingleTop = true
-//        //Restaura l'estat de la pantalla i la deixa tal i com estava quan vam navegar a un altre lloc
-//        restoreState = true
+
     //region Lambdas
     val navegaARegistre ={controladorDeNavegacio.navigate(DestinacioRegistre){
         popUpTo(controladorDeNavegacio.graph.findStartDestination().id) { inclusive = false }
@@ -91,7 +87,7 @@ fun GrafDeNavegacio (
         }
 
         composable<DestinacioLogin> {
-            PantallaLogin(manegadorAnalitiques, manegadorAutentificacio,crashlytics,navegaARegistre,navegaAInici)
+            PantallaLogin(manegadorAnalitiques, manegadorAutentificacio,crashlytics, manegadorFirestore,navegaARegistre,navegaAInici)
         }
 
         composable<DestinacioRegistre> {
@@ -99,21 +95,17 @@ fun GrafDeNavegacio (
         }
 
         composable<DestinacioPerfil> {
-            PantallaPerfil(manegadorAnalitiques, manegadorAutentificacio, navegaALogin)
+            PantallaPerfil(manegadorAnalitiques, manegadorAutentificacio,manegadorFirestore, navegaALogin)
         }
 
         composable<DestinacioEstats> {
-            val argument = it.toRoute<DestinacioEstats>()
             PantallaEstats()
-        }
-
-        composable<DestinacioCategories> {
-
         }
 
 
         composable<DestinacioTasques> {
             val argument = it.toRoute<DestinacioTasques>()
+            PantallaTasques()
 
         }
     }

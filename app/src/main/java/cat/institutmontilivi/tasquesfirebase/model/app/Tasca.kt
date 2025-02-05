@@ -1,14 +1,13 @@
 package cat.institutmontilivi.tasquesfirebase.model.app
 
-data class Tasca (
-    val id:String,
-    val titol:String,
-    val descripcio:String,
-    val dataLimit:Long,
-    val estat:String,
-    val idCategoria:String,
-    val usuaris:List<String>,
-    val uriFotos:List<String>,
-    val uriVideos:List<String>,
-    val uriAudios:List<String>,
+class Tasca (
+    var id:String="",
+    var titol:String="",
+    var descripcio:String="",
+    var dataLimit:Long=0,
+    var estat:String="",
+    var usuaris:List<String> =listOf(),
+    var uriFotos:List<String> =listOf(),
+    var uriVideos:List<String> =listOf(),
+    var uriAudios:List<String> =listOf(),
 )

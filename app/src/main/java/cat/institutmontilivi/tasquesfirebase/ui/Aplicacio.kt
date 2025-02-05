@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Login
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Login
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerState
@@ -28,7 +27,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -46,8 +47,12 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import cat.institutmontilivi.tasquesfirebase.R
 import cat.institutmontilivi.tasquesfirebase.analitiques.ManegadorAnalitiques
-import cat.institutmontilivi.tasquesfirebase.navegacio.DestinacioCategoria
-import cat.institutmontilivi.tasquesfirebase.navegacio.DestinacioCategories
+import cat.institutmontilivi.tasquesfirebase.autentificacio.ManegadorAutentificacio
+import cat.institutmontilivi.tasquesfirebase.dades.BBDDFactory
+import cat.institutmontilivi.tasquesfirebase.firestore.ManegadorFirestore
+import cat.institutmontilivi.tasquesfirebase.firestore.usuariActual
+import cat.institutmontilivi.tasquesfirebase.model.app.Resposta
+import cat.institutmontilivi.tasquesfirebase.model.app.Usuari
 import cat.institutmontilivi.tasquesfirebase.navegacio.DestinacioEstat
 import cat.institutmontilivi.tasquesfirebase.navegacio.DestinacioEstats
 import cat.institutmontilivi.tasquesfirebase.navegacio.DestinacioInstruccions
@@ -61,6 +66,7 @@ import cat.institutmontilivi.tasquesfirebase.navegacio.DestinacioTasques
 import cat.institutmontilivi.tasquesfirebase.navegacio.GrafDeNavegacio
 import cat.institutmontilivi.tasquesfirebase.navegacio.opcionsDrawer
 import cat.institutmontilivi.tasquesfirebase.ui.theme.TasquesFirebaseTheme
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -74,19 +80,26 @@ fun PantallaDeLAplicacio (content: @Composable ()->Unit)
 }
 
 //region Aplicacio
-@Preview
+
 @Composable
-fun Aplicacio (content: @Composable ()-> Unit = { Text ("") })
+fun Aplicacio (
+    content: @Composable () -> Unit = { Text("") },
+    manegadorFirestore: ManegadorFirestore,
+    manegadorAutentificacio: ManegadorAutentificacio,
+    crashlytics: FirebaseCrashlytics,
+    manegadorAnalitiques: ManegadorAnalitiques
+)
 {
-    val crashlytics = FirebaseCrashlytics.getInstance()
-    val manegadorAnalitiques = ManegadorAnalitiques(LocalContext.current)
+    val context = LocalContext.current
+
     val controladorDeNavegacio = rememberNavController()
     val ambitCorrutina: CoroutineScope = rememberCoroutineScope()
     var estatDrawer = rememberDrawerState(initialValue = DrawerValue.Closed)
     val rutaActual by controladorDeNavegacio.currentBackStackEntryAsState()
     val destinacioActual = rutaActual?.destination
 
-    CalaixDeNavegacio(controladorDeNavegacio, ambitCorrutina, estatDrawer, rutaActual, destinacioActual, manegadorAnalitiques, crashlytics)
+
+    CalaixDeNavegacio(controladorDeNavegacio, ambitCorrutina, estatDrawer, rutaActual, destinacioActual, manegadorAnalitiques, crashlytics, manegadorFirestore, manegadorAutentificacio)
 
 }
 //endregion
@@ -100,8 +113,31 @@ fun CalaixDeNavegacio(
     rutaActual: NavBackStackEntry?,
     destinacioActual: NavDestination?,
     manegadorAnalitiques: ManegadorAnalitiques,
-    crashlytics: FirebaseCrashlytics
+    crashlytics: FirebaseCrashlytics,
+    manegadorFirestore: ManegadorFirestore,
+    manegadorAutentificacio: ManegadorAutentificacio
 ) {
+    val usuariAutenticat: FirebaseUser? = manegadorAutentificacio.obtenUsuariActual()
+    val context = LocalContext.current
+
+    LaunchedEffect (usuariAutenticat)
+    {
+        if (usuariAutenticat!= null) {
+            ambitCorrutina.launch {
+                val resposta = BBDDFactory.obtenRepositoriUsuaris(
+                    context,
+                    BBDDFactory.DatabaseType.FIREBASE
+                ).obtenUsuari(usuariAutenticat!!.email!!)
+                if (resposta is Resposta.Exit) {
+                    usuariActual.id= resposta.dades.id
+                    usuariActual.nom= resposta.dades.nom
+                    usuariActual.correu= resposta.dades.correu
+                    usuariActual.usuarisHabituals= resposta.dades.usuarisHabituals
+                }
+            }
+        }
+    }
+
     ModalNavigationDrawer(
         drawerState = estatDrawer,
         drawerContent = {
@@ -135,7 +171,11 @@ fun CalaixDeNavegacio(
                             ambitCorrutina.launch {
                                 estatDrawer.close()
                             }
-                            controladorDeNavegacio.navigate(opcio.ruta) {
+                            var destinacio = opcio.ruta
+                            if (destinacio is DestinacioTasques)
+                                destinacio = DestinacioTasques(usuariActual.id)
+
+                            controladorDeNavegacio.navigate(destinacio) {
                                 popUpTo(controladorDeNavegacio.graph.findStartDestination().id){
                                     //guarda l'estat de la pantalla de la que marxem (funciona d'aquella manera,
                                     // No tots els valors es guarden))
@@ -172,7 +212,9 @@ fun CalaixDeNavegacio(
             ambitCorrutina = ambitCorrutina,
             estatDrawer = estatDrawer,
             manegadorAnalitiques = manegadorAnalitiques,
-            crashlytics = crashlytics
+            crashlytics = crashlytics,
+            manegadorFirestore,
+            manegadorAutentificacio
         )
     }
 }
@@ -183,7 +225,6 @@ private fun esPotObrirElDrawer(destinacioActual: NavDestination?) = listOf(
     DestinacioPreferencies::class,
     DestinacioQuantA::class,
     DestinacioPerfil::class,
-    DestinacioCategories::class,
     DestinacioTasques::class,
     DestinacioEstats::class,
 
@@ -192,7 +233,6 @@ private fun esPotObrirElDrawer(destinacioActual: NavDestination?) = listOf(
 private fun esPotAnarEnrera(destinacioActual: NavDestination?) = listOf(
     DestinacioRegistre::class,
     DestinacioTasca::class,
-    DestinacioCategoria::class,
     DestinacioEstat::class,
     ).any { destinacioActual?.hasRoute(it) ?: true }
 //endregion
@@ -208,7 +248,9 @@ fun Bastida(
     ambitCorrutina: CoroutineScope,
     estatDrawer: DrawerState,
     manegadorAnalitiques: ManegadorAnalitiques,
-    crashlytics: FirebaseCrashlytics
+    crashlytics: FirebaseCrashlytics,
+    manegadorFirestore: ManegadorFirestore,
+    manegadorAutentificacio: ManegadorAutentificacio
 )
 {
     Scaffold(
@@ -268,6 +310,8 @@ fun Bastida(
         GrafDeNavegacio(
             controladorDeNavegacio = controladorDeNavegacio,
             manegadorAnalitiques = manegadorAnalitiques,
+            manegadorFirestore = manegadorFirestore,
+            manegadorAutentificacio = manegadorAutentificacio,
             crashlytics = crashlytics,
             paddingValues = paddingValues
         )

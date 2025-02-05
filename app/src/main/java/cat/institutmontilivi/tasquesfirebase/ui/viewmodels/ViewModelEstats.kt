@@ -1,6 +1,5 @@
 package cat.institutmontilivi.tasquesfirebase.ui.viewmodels
 
-import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
@@ -16,26 +15,12 @@ import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 class ViewModelEstats :ViewModel() {
-    private var _estat = MutableStateFlow<EstatsEstat>(EstatsEstat())
-    val estat: StateFlow<EstatsEstat> = _estat.asStateFlow()
+    private var _estat = MutableStateFlow<EstatEstats>(EstatEstats())
+    val estat: StateFlow<EstatEstats> = _estat.asStateFlow()
     val estatsRepositori = BBDDFactory.obtenRepositoriEstats(null, BBDDFactory.DatabaseType.FIREBASE)
 
     init{
        obtenEstats()
-    }
-
-    fun afegeixEstatRandom()
-    {
-        val estat = Estat(
-            id ="",
-            nom = "Estat" + Random.nextInt(1000).toString(),
-            colorFons = "#"+ Integer.toHexString(Color(Random.nextInt(256),Random.nextInt(256),Random.nextInt(256), 255).toArgb()),
-            colorText = "#"+Integer.toHexString(Color(Random.nextInt(256),Random.nextInt(256),Random.nextInt(256), 255).toArgb()))
-        viewModelScope.launch (Dispatchers.IO){
-            estatsRepositori.afegeixEstat(estat)
-
-
-        }
     }
 
     fun afegeixEstat(estat: Estat)
@@ -94,7 +79,7 @@ fun obtenEstats()
         }
     }
 
-    data class EstatsEstat(
+    data class EstatEstats(
         val estaCarregant:Boolean = true,
         val estats:List<Estat> = listOf(),
         val esErroni:Boolean = false,

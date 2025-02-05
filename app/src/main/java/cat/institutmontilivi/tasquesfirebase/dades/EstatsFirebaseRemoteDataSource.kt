@@ -49,8 +49,9 @@ class EstatsFirebaseRemoteDataSource( manegadorFirestore: ManegadorFirestore) : 
                 if (!existeix) {
                     val refEstats = db.firestoreDb.collection(db.ESTATS)
                     val refEstatNou = refEstats.document()
-                    val estatNou = estat.copy(id = refEstatNou.id)
-                    refEstatNou.set(estatNou)
+                    //val estatNou = estat.copy(id = refEstatNou.id)
+                    estat.id = refEstatNou.id
+                    refEstatNou.set(estat)
                     existeix = true
                 }
             }

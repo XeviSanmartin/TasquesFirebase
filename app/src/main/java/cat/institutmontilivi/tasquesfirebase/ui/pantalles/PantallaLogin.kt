@@ -48,6 +48,8 @@ import cat.institutmontilivi.tasquesfirebase.R
 import cat.institutmontilivi.tasquesfirebase.analitiques.ManegadorAnalitiques
 import cat.institutmontilivi.tasquesfirebase.autentificacio.ManegadorAutentificacio
 import cat.institutmontilivi.tasquesfirebase.dades.BBDDFactory
+import cat.institutmontilivi.tasquesfirebase.firestore.ManegadorFirestore
+import cat.institutmontilivi.tasquesfirebase.firestore.usuariActual
 import cat.institutmontilivi.tasquesfirebase.model.app.Resposta
 import cat.institutmontilivi.tasquesfirebase.model.app.Usuari
 import com.google.firebase.crashlytics.FirebaseCrashlytics
@@ -76,6 +78,7 @@ fun PantallaLogin(
     manegadorAnalitiques: ManegadorAnalitiques,
     manegadorAutentificacio: ManegadorAutentificacio,
     crashlytics: FirebaseCrashlytics,
+    manegadorFirestore: ManegadorFirestore,
     navegaARegistre: () -> Unit,
     navegaAInici: () -> Unit
 )
@@ -139,7 +142,7 @@ fun PantallaLogin(
             onClick = {
                 manegadorAnalitiques.registreClicABoto("Inicia sessió amb correu i mot de pas")
                 val deferredJob = ambitDeCorrutina.async{
-                    return@async IniciDeSessioCorreu(correu, motDePas, manegadorAutentificacio, navegaAInici, context, ambitDeCorrutina)
+                    return@async IniciDeSessioCorreu(correu, motDePas, manegadorAutentificacio, manegadorFirestore, navegaAInici, context, ambitDeCorrutina)
                 }
                 ambitDeCorrutina.launch {
                     val resultat = deferredJob.await()
@@ -230,17 +233,22 @@ fun PantallaLogin(
                                 nom = manegadorAutentificacio.obtenUsuariActual()?.displayName?:"",
                                 cognom = "",
                                 correu = manegadorAutentificacio.obtenUsuariActual()?.email?:"",
-                                llistes = emptyList(),
                                 tasques = emptyList(),
                                 usuarisHabituals = emptyList())
                             val resposta = bbdd.afegeixUsuari(usuari)
-                            if (resposta is Resposta.Exit)
+                            if (resposta is Resposta.Exit) {
+                                usuariActual.id = usuari.id
+                                usuariActual.nom = usuari.nom
+                                usuariActual.correu = usuari.correu
+                                usuariActual.usuarisHabituals = usuari.usuarisHabituals
                                 if (resposta.dades)
                                     Log.d("INICI_DE_SESSIO", "Afegit l'usuari {correu}")
                                 else
                                     Log.e("INICI_DE_SESSIO", "Error afegint l'usuari {correu}")
+                            }
 
                         }
+
                         navegaAInici()
                     }
                 }
@@ -322,6 +330,7 @@ suspend fun IniciDeSessioCorreu(
     correu: String,
     motDePas: String,
     manegadorAutentificacio: ManegadorAutentificacio,
+    manegadorFirestore: ManegadorFirestore,
     navegaAInici: () -> Unit,
     context: Context,
     ambitDeCorrutina: CoroutineScope
@@ -333,13 +342,18 @@ suspend fun IniciDeSessioCorreu(
 
                 val bbdd = BBDDFactory.obtenRepositoriUsuaris(context, BBDDFactory.DatabaseType.FIREBASE)
                 ambitDeCorrutina.launch {
-                    val usuari = Usuari(id= "", nom = "nom", cognom = "cognom", correu = correu, llistes = emptyList(), tasques = emptyList(), usuarisHabituals = emptyList())
+                    val usuari = Usuari(id= "", nom = "nom", cognom = "cognom", correu = correu, tasques = emptyList(), usuarisHabituals = emptyList())
                     val respostaAfegeixUsuari = bbdd.afegeixUsuari(usuari)
-                    if (respostaAfegeixUsuari is Resposta.Exit)
+                    if (respostaAfegeixUsuari is Resposta.Exit) {
+                        usuariActual.id = usuari.id
+                        usuariActual.nom = usuari.nom
+                        usuariActual.correu = usuari.correu
+                        usuariActual.usuarisHabituals = usuari.usuarisHabituals
                         if (respostaAfegeixUsuari.dades)
                             Log.d("INICI_DE_SESSIO", "Afegit l'usuari {correu}")
                         else
                             Log.e("INICI_DE_SESSIO", "Error afegint l'usuari {correu}")
+                    }
                 }
 
                 navegaAInici()

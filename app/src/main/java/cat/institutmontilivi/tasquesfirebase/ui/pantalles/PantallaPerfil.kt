@@ -29,6 +29,8 @@ import androidx.compose.ui.unit.dp
 import cat.institutmontilivi.tasquesfirebase.R
 import cat.institutmontilivi.tasquesfirebase.analitiques.ManegadorAnalitiques
 import cat.institutmontilivi.tasquesfirebase.autentificacio.ManegadorAutentificacio
+import cat.institutmontilivi.tasquesfirebase.firestore.ManegadorFirestore
+import cat.institutmontilivi.tasquesfirebase.firestore.usuariActual
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import kotlinx.coroutines.launch
@@ -40,6 +42,7 @@ fun PreviewPerfil()
     PantallaPerfil(
         manegadorAnalitiques = ManegadorAnalitiques(LocalContext.current),
         manegadorAutentificacio = ManegadorAutentificacio(LocalContext.current),
+        manegadorFirestore = ManegadorFirestore(),
         navegaALogin = { },
         //manegadorFirestore = ManegadorFirestore()//(LocalContext.current)
     )
@@ -49,6 +52,7 @@ fun PreviewPerfil()
 fun PantallaPerfil(
     manegadorAnalitiques: ManegadorAnalitiques,
     manegadorAutentificacio: ManegadorAutentificacio,
+    manegadorFirestore: ManegadorFirestore,
     navegaALogin: () -> Unit,
     //manegadorFirestore: ManegadorFirestore
 )
@@ -122,6 +126,10 @@ fun PantallaPerfil(
             onClick = {
                 ambit.launch {
                     manegadorAutentificacio.tancaSessio()
+                    usuariActual.id = ""
+                    usuariActual.nom = ""
+                    usuariActual.correu = ""
+                    usuariActual.usuarisHabituals = listOf()
                     navegaALogin()
                 }
             },

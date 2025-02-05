@@ -1,11 +1,10 @@
 package cat.institutmontilivi.tasquesfirebase.model.app
 
-data class Usuari(
-    val id:String,
-    val nom:String,
-    val cognom:String,
-    val correu:String,
-    val llistes:List<String>,
-    val tasques:List<String>,
-    val usuarisHabituals:List<String>
+class Usuari(
+    var id:String="",
+    var nom:String="",
+    var cognom:String="",
+    var correu:String="",
+    var tasques:List<String> = listOf(),
+    var usuarisHabituals:List<String> = listOf(),
 )
