@@ -3,6 +3,7 @@ package cat.institutmontilivi.tasquesfirebase.dades
 import cat.institutmontilivi.tasquesfirebase.firestore.ManegadorFirestore
 import cat.institutmontilivi.tasquesfirebase.model.app.Estat
 import cat.institutmontilivi.tasquesfirebase.model.app.Resposta
+import com.google.firebase.firestore.ListenerRegistration
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -15,10 +16,11 @@ class EstatsFirebaseRemoteDataSource( manegadorFirestore: ManegadorFirestore) : 
 
     override suspend fun obtenEstats(): Flow<Resposta<List<Estat>>>  = callbackFlow{
         var llista = mutableListOf<Estat>()
+        lateinit var subscripcio: ListenerRegistration
         try{
             val refEstats = db.firestoreDb.collection(db.ESTATS)
 
-            val subscripcio = refEstats.addSnapshotListener{
+             subscripcio = refEstats.addSnapshotListener{
                 snapshot, _ ->
                 snapshot?.let { querySnapshot ->  //Si l'snapshot no es null, processem la llista de documents
                     val estats = mutableListOf<Estat>()
@@ -30,10 +32,13 @@ class EstatsFirebaseRemoteDataSource( manegadorFirestore: ManegadorFirestore) : 
                     trySend(Resposta.Exit(estats)).isSuccess
                 }
             }
-            awaitClose { subscripcio.remove() }
+
         }catch (e: Exception) {
             trySend (Resposta.Fracas(e.message ?: "Error obtenint llista d'estats"))
             }
+        finally {
+            awaitClose { subscripcio.remove() }
+        }
     }
 
     override suspend fun afegeixEstat(estat: Estat): Resposta<Boolean> {

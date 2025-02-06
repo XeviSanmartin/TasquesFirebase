@@ -4,6 +4,7 @@ import cat.institutmontilivi.tasquesfirebase.firestore.usuariActual
 import cat.institutmontilivi.tasquesfirebase.model.app.Estat
 import cat.institutmontilivi.tasquesfirebase.model.app.Resposta
 import cat.institutmontilivi.tasquesfirebase.model.app.Tasca
+import com.google.firebase.firestore.ListenerRegistration
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -15,10 +16,11 @@ class TasquesFirebaseRemoteDataSource(manegadorFirestore: ManegadorFirestore):Ta
 
     override suspend fun obtenTasques(idUsuari: String): Flow<Resposta<List<Tasca>>> = callbackFlow{
         var llista = mutableListOf<Tasca>()
+        lateinit var subscripcio : ListenerRegistration
         try{
             val refTasques = db.firestoreDb.collection(db.TASQUES).whereArrayContains("usuaris", idUsuari)
 
-            val subscripcio = refTasques.addSnapshotListener{
+            subscripcio = refTasques.addSnapshotListener{
                     snapshot, _ ->
                 snapshot?.let { querySnapshot ->  //Si l'snapshot no es null, processem la llista de documents
                     val tasques = mutableListOf<Tasca>()
@@ -29,9 +31,12 @@ class TasquesFirebaseRemoteDataSource(manegadorFirestore: ManegadorFirestore):Ta
                     trySend(Resposta.Exit(tasques)).isSuccess
                 }
             }
-            awaitClose { subscripcio.remove() }
+
         }catch (e: Exception) {
             trySend (Resposta.Fracas(e.message ?: "Error obtenint llista de tasques"))
+        }
+        finally {
+            awaitClose { subscripcio.remove() }
         }
     }
 
@@ -63,7 +68,7 @@ class TasquesFirebaseRemoteDataSource(manegadorFirestore: ManegadorFirestore):Ta
     override suspend fun eliminaTasca(idTasca: String): Resposta<Boolean> {
         var eliminat = false
         try {
-            val refTasques = db.firestoreDb.collection(db.ESTATS)
+            val refTasques = db.firestoreDb.collection(db.TASQUES)
             val refTasca = refTasques.document(idTasca)
             val document = refTasca.get().await()
             val tasca = document.toObject(Tasca::class.java)
