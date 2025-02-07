@@ -96,6 +96,7 @@ dependencies {
 
     //Descàrregues d'imatges d'Internet
     implementation ("io.coil-kt:coil-compose:2.5.0")
+    implementation("io.coil-kt:coil-video:2.2.2")
 
     //ColorPicker
     implementation("com.github.skydoves:colorpicker-compose:1.1.2")

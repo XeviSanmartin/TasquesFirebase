@@ -3,7 +3,10 @@ import android.net.Uri
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,9 +14,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -48,6 +53,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -60,11 +66,14 @@ import cat.institutmontilivi.tasquesfirebase.dades.local.creaUnFitxerMultimedia
 import cat.institutmontilivi.tasquesfirebase.model.app.Estat
 import cat.institutmontilivi.tasquesfirebase.model.app.Tasca
 import cat.institutmontilivi.tasquesfirebase.ui.viewmodels.ViewModelTasques
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
+import coil.transform.RoundedCornersTransformation
 import java.time.LocalDate
 import java.util.Objects
 
 @Composable
-fun PantallaTasques(viewModel: ViewModelTasques = viewModel()) {
+fun PantallaTasques(viewModel: ViewModelTasques = viewModel(), navegaAFoto: (String) -> Unit) {
     val estat = viewModel.tasques.collectAsState()
     var mostraDialegAfegeixTasca by remember { mutableStateOf(false) }
     var mostraDialegActualitzaTasca by remember { mutableStateOf(false) }
@@ -168,7 +177,8 @@ fun PantallaTasques(viewModel: ViewModelTasques = viewModel()) {
                             uriImatge,
                             camaraVideoLauncher,
                             uriVideo,
-                            viewModel
+                            viewModel,
+                            navegaAFoto
                         )
                     }
                 }
@@ -189,8 +199,10 @@ fun PantallaTasques(viewModel: ViewModelTasques = viewModel()) {
         camaraVideoLauncher: ManagedActivityResultLauncher<Uri, Boolean>,
         uriVideo: Uri,
         viewModel: ViewModelTasques,
+        navegaAFoto: (String) -> Unit,
 
         ) {
+        val scrollState = rememberScrollState()
 
         Column(
             modifier = Modifier
@@ -222,7 +234,8 @@ fun PantallaTasques(viewModel: ViewModelTasques = viewModel()) {
                 color = Color((estats[tasca.estat]?.colorText ?: "#FFFFFFFF").toColorInt()),
                 textAlign = TextAlign.Center
             )
-            Spacer(Modifier.height(8.dp))
+
+            //region Botons
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -298,6 +311,39 @@ fun PantallaTasques(viewModel: ViewModelTasques = viewModel()) {
                     )
                 }
             }
+            //endregion
+            Spacer(Modifier.height(8.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+                    .background(MaterialTheme.colorScheme.primaryContainer)
+                    .horizontalScroll(scrollState)
+            ){
+                tasca.uriFotos.forEach{
+                    ImatgeDeCoil(
+                        urlDeLaImatge = it,
+                        contentDescription = "",
+                        modifier = Modifier
+                            .height(150.dp)
+                            .width(200.dp)
+                            .padding(2.dp)
+                            .background(Color.Cyan)
+                            .clickable { navegaAFoto(it) },
+                        contentScale = ContentScale.Fit)
+                }
+            }
+//            Row(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .padding(8.dp)
+//                    .background(MaterialTheme.colorScheme.primaryContainer)
+//                    .horizontalScroll(scrollState)
+//            ){
+//                tasca.uriVideos.forEach{
+//                    ImatgeDeCoil(urlDeLaImatge = it, contentDescription = "", modifier = Modifier.height(150.dp).width(200.dp).padding(2.dp).background(Color.Cyan), contentScale = ContentScale.Fit)
+//                }
+//            }
         }
     }
 //endregion
@@ -540,3 +586,58 @@ fun PantallaTasques(viewModel: ViewModelTasques = viewModel()) {
         )
     }
 //endregion
+
+@Composable
+fun ImatgeDeCoil(
+    urlDeLaImatge: String,
+    contentDescription: String?,
+    modifier: Modifier = Modifier,
+    contentScale: ContentScale = ContentScale.Fit
+) {
+    val painter = rememberAsyncImagePainter(
+        ImageRequest
+            .Builder(LocalContext.current)
+            .data(data = urlDeLaImatge)
+            .apply(block = fun ImageRequest.Builder.() {
+                crossfade(true)
+                transformations(RoundedCornersTransformation(topLeft = 20f, topRight = 20f, bottomLeft = 20f, bottomRight = 20f))
+            })
+            .build()
+    )
+
+    Image(
+        painter = painter,
+        contentDescription = contentDescription,
+        modifier = modifier.padding(6.dp),
+        contentScale = contentScale,
+    )
+}
+
+
+@Composable
+fun VideoDeCoil(
+    uriDelVideo: String,
+    contentDescription: String?,
+    modifier: Modifier = Modifier,
+    contentScale: ContentScale = ContentScale.Fit
+) {
+    val painter = rememberAsyncImagePainter(
+        ImageRequest
+            .Builder(LocalContext.current)
+            .data(data = uriDelVideo)
+            //.videoFrameMillis(1000)
+            //.decoderFactory{}
+            .apply(block = fun ImageRequest.Builder.() {
+                crossfade(true)
+                transformations(RoundedCornersTransformation(topLeft = 20f, topRight = 20f, bottomLeft = 20f, bottomRight = 20f))
+            })
+            .build()
+    )
+
+    Image(
+        painter = painter,
+        contentDescription = contentDescription,
+        modifier = modifier.padding(6.dp),
+        contentScale = contentScale,
+    )
+}

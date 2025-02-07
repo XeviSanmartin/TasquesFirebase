@@ -51,6 +51,9 @@ object DestinacioEstats
 data class DestinacioTasques (val idUsuari:String)
 
 @Serializable
+data class DestinacioFoto (val url:String)
+
+@Serializable
 data class DestinacioTasca (val idTasca:String? = null)
 
 

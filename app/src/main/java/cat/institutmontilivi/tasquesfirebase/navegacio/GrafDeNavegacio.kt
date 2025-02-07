@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -16,6 +15,7 @@ import cat.institutmontilivi.tasquesfirebase.dades.xarxa.manegadors.analitiques.
 import cat.institutmontilivi.tasquesfirebase.dades.xarxa.manegadors.autentificacio.ManegadorAutentificacio
 import cat.institutmontilivi.tasquesfirebase.dades.xarxa.manegadors.firestore.ManegadorFirestore
 import cat.institutmontilivi.tasquesfirebase.ui.pantalles.PantallaEstats
+import cat.institutmontilivi.tasquesfirebase.ui.pantalles.PantallaFoto
 import cat.institutmontilivi.tasquesfirebase.ui.pantalles.PantallaLogin
 import cat.institutmontilivi.tasquesfirebase.ui.pantalles.PantallaPerfil
 import cat.institutmontilivi.tasquesfirebase.ui.pantalles.PantallaRegistre
@@ -62,6 +62,8 @@ fun GrafDeNavegacio (
     }}
 
     val navegaEnrera: ()->Unit = {controladorDeNavegacio.popBackStack()}
+
+    val navegaAFoto: (String)->Unit = {url->controladorDeNavegacio.navigate(DestinacioFoto(url))}
     //endregion
 
     NavHost(
@@ -105,7 +107,13 @@ fun GrafDeNavegacio (
 
         composable<DestinacioTasques> {
             val argument = it.toRoute<DestinacioTasques>()
-            PantallaTasques()
+            PantallaTasques(navegaAFoto = navegaAFoto)
+
+        }
+
+        composable<DestinacioFoto> {
+            val argument = it.toRoute<DestinacioFoto>()
+            PantallaFoto(argument.url)
 
         }
     }
