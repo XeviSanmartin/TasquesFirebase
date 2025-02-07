@@ -12,6 +12,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TasquesFirebase"
         tools:targetApi="31">
+        <provider
+            android:authorities="cat.institutmontilivi.tasquesfirebase.proveidor"
+            android:name="androidx.core.content.FileProvider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/paths_fitxers"/>
+        </provider>
         <activity
             android:name=".MainActivity"
             android:exported="true"

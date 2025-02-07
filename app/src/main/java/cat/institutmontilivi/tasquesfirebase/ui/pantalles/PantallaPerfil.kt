@@ -27,10 +27,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import cat.institutmontilivi.tasquesfirebase.R
-import cat.institutmontilivi.tasquesfirebase.analitiques.ManegadorAnalitiques
-import cat.institutmontilivi.tasquesfirebase.autentificacio.ManegadorAutentificacio
-import cat.institutmontilivi.tasquesfirebase.firestore.ManegadorFirestore
-import cat.institutmontilivi.tasquesfirebase.firestore.usuariActual
+import cat.institutmontilivi.tasquesfirebase.dades.xarxa.manegadors.analitiques.ManegadorAnalitiques
+import cat.institutmontilivi.tasquesfirebase.dades.xarxa.manegadors.autentificacio.ManegadorAutentificacio
+import cat.institutmontilivi.tasquesfirebase.dades.xarxa.manegadors.firestore.ManegadorFirestore
+import cat.institutmontilivi.tasquesfirebase.dades.xarxa.manegadors.firestore.usuariActual
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import kotlinx.coroutines.launch

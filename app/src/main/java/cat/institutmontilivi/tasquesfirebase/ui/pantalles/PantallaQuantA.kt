@@ -10,7 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import cat.institutmontilivi.tasquesfirebase.analitiques.ManegadorAnalitiques
+import cat.institutmontilivi.tasquesfirebase.dades.xarxa.manegadors.analitiques.ManegadorAnalitiques
 
 //@Preview
 @Composable

@@ -1,17 +1,17 @@
-package cat.institutmontilivi.tasquesfirebase.dades
+package cat.institutmontilivi.tasquesfirebase.dades.xarxa.firebase
 
-import cat.institutmontilivi.tasquesfirebase.firestore.ManegadorFirestore
+import cat.institutmontilivi.tasquesfirebase.dades.EstatsRepositori
+import cat.institutmontilivi.tasquesfirebase.dades.xarxa.manegadors.firestore.ManegadorFirestore
 import cat.institutmontilivi.tasquesfirebase.model.app.Estat
 import cat.institutmontilivi.tasquesfirebase.model.app.Resposta
 import com.google.firebase.firestore.ListenerRegistration
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 
-class EstatsFirebaseRemoteDataSource( manegadorFirestore: ManegadorFirestore) : EstatsRepositori{
+class EstatsFirebaseRemoteDataSource( manegadorFirestore: ManegadorFirestore) : EstatsRepositori {
     val db = manegadorFirestore
 
     override suspend fun obtenEstats(): Flow<Resposta<List<Estat>>>  = callbackFlow{

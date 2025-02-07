@@ -1,7 +1,8 @@
-package cat.institutmontilivi.tasquesfirebase.dades
-import cat.institutmontilivi.tasquesfirebase.firestore.ManegadorFirestore
-import cat.institutmontilivi.tasquesfirebase.firestore.usuariActual
-import cat.institutmontilivi.tasquesfirebase.model.app.Estat
+package cat.institutmontilivi.tasquesfirebase.dades.xarxa.firebase
+import cat.institutmontilivi.tasquesfirebase.dades.BBDDFactory
+import cat.institutmontilivi.tasquesfirebase.dades.TasquesRepositori
+import cat.institutmontilivi.tasquesfirebase.dades.xarxa.manegadors.firestore.ManegadorFirestore
+import cat.institutmontilivi.tasquesfirebase.dades.xarxa.manegadors.firestore.usuariActual
 import cat.institutmontilivi.tasquesfirebase.model.app.Resposta
 import cat.institutmontilivi.tasquesfirebase.model.app.Tasca
 import com.google.firebase.firestore.ListenerRegistration
@@ -11,7 +12,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 
-class TasquesFirebaseRemoteDataSource(manegadorFirestore: ManegadorFirestore):TasquesRepositori {
+class TasquesFirebaseRemoteDataSource(manegadorFirestore: ManegadorFirestore): TasquesRepositori {
     val db = manegadorFirestore
 
     override suspend fun obtenTasques(idUsuari: String): Flow<Resposta<List<Tasca>>> = callbackFlow{
@@ -86,7 +87,8 @@ class TasquesFirebaseRemoteDataSource(manegadorFirestore: ManegadorFirestore):Ta
                 refTasca.set(tasca).await()
 
             //Eliminem la tasca de la llista de tasques de l'usuari
-            BBDDFactory.obtenRepositoriUsuaris(null,BBDDFactory.DatabaseType.FIREBASE).eliminaTascaDeUsuari(idTasca, usuariActual.id)
+            BBDDFactory.obtenRepositoriUsuaris(null, BBDDFactory.DatabaseType.FIREBASE)
+                .eliminaTascaDeUsuari(idTasca, usuariActual.id)
 
 
             eliminat = true
@@ -145,7 +147,8 @@ class TasquesFirebaseRemoteDataSource(manegadorFirestore: ManegadorFirestore):Ta
             llista.add(idUsuari)
             tasca.usuaris = llista.toList()
             refTasca.set(tasca).await()
-            BBDDFactory.obtenRepositoriUsuaris(null, BBDDFactory.DatabaseType.FIREBASE).afegeixTascaAUsuari(idTasca, idUsuari)
+            BBDDFactory.obtenRepositoriUsuaris(null, BBDDFactory.DatabaseType.FIREBASE)
+                .afegeixTascaAUsuari(idTasca, idUsuari)
         }catch (e: Exception) {
             return Resposta.Fracas(e.message?:"Error cercant la tasca $idTasca")
         }

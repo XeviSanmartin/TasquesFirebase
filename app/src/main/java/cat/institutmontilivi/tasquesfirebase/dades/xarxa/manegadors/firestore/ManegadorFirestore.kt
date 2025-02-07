@@ -1,4 +1,4 @@
-package cat.institutmontilivi.tasquesfirebase.firestore
+package cat.institutmontilivi.tasquesfirebase.dades.xarxa.manegadors.firestore
 
 import cat.institutmontilivi.tasquesfirebase.model.app.Usuari
 import com.google.firebase.firestore.FirebaseFirestore

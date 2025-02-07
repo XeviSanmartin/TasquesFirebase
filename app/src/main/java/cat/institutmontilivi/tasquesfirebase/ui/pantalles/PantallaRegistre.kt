@@ -34,8 +34,8 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import cat.institutmontilivi.tasquesfirebase.analitiques.ManegadorAnalitiques
-import cat.institutmontilivi.tasquesfirebase.autentificacio.ManegadorAutentificacio
+import cat.institutmontilivi.tasquesfirebase.dades.xarxa.manegadors.analitiques.ManegadorAnalitiques
+import cat.institutmontilivi.tasquesfirebase.dades.xarxa.manegadors.autentificacio.ManegadorAutentificacio
 import cat.institutmontilivi.tasquesfirebase.model.app.Resposta
 import kotlinx.coroutines.launch
 

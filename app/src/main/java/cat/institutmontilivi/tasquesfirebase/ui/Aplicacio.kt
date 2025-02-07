@@ -46,11 +46,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import cat.institutmontilivi.tasquesfirebase.R
-import cat.institutmontilivi.tasquesfirebase.analitiques.ManegadorAnalitiques
-import cat.institutmontilivi.tasquesfirebase.autentificacio.ManegadorAutentificacio
+import cat.institutmontilivi.tasquesfirebase.dades.xarxa.manegadors.analitiques.ManegadorAnalitiques
+import cat.institutmontilivi.tasquesfirebase.dades.xarxa.manegadors.autentificacio.ManegadorAutentificacio
 import cat.institutmontilivi.tasquesfirebase.dades.BBDDFactory
-import cat.institutmontilivi.tasquesfirebase.firestore.ManegadorFirestore
-import cat.institutmontilivi.tasquesfirebase.firestore.usuariActual
+import cat.institutmontilivi.tasquesfirebase.dades.xarxa.manegadors.firestore.ManegadorFirestore
+import cat.institutmontilivi.tasquesfirebase.dades.xarxa.manegadors.firestore.usuariActual
 import cat.institutmontilivi.tasquesfirebase.model.app.Resposta
 import cat.institutmontilivi.tasquesfirebase.model.app.Usuari
 import cat.institutmontilivi.tasquesfirebase.navegacio.DestinacioEstat

@@ -1,4 +1,4 @@
-package cat.institutmontilivi.tasquesfirebase.autentificacio
+package cat.institutmontilivi.tasquesfirebase.dades.xarxa.manegadors.autentificacio
 
 import android.content.Context
 import android.util.Log

@@ -1,7 +1,7 @@
-package cat.institutmontilivi.tasquesfirebase.dades
+package cat.institutmontilivi.tasquesfirebase.dades.xarxa.firebase
 
-import cat.institutmontilivi.tasquesfirebase.firestore.ManegadorFirestore
-import cat.institutmontilivi.tasquesfirebase.model.app.Estat
+import cat.institutmontilivi.tasquesfirebase.dades.UsuarisRepositori
+import cat.institutmontilivi.tasquesfirebase.dades.xarxa.manegadors.firestore.ManegadorFirestore
 import cat.institutmontilivi.tasquesfirebase.model.app.Resposta
 import cat.institutmontilivi.tasquesfirebase.model.app.Tasca
 import cat.institutmontilivi.tasquesfirebase.model.app.Usuari
@@ -11,7 +11,7 @@ import kotlinx.coroutines.tasks.await
 
 //https://medium.com/firebase-tips-tricks/how-to-read-data-from-cloud-firestore-using-get-bf03b6ee4953
 
-class UsuarisFirebaseRemoteDataSource ( manegadorFirestore: ManegadorFirestore):UsuarisRepositori {
+class UsuarisFirebaseRemoteDataSource ( manegadorFirestore: ManegadorFirestore): UsuarisRepositori {
     val db = manegadorFirestore
 
     override suspend  fun obtenUsuaris(): Resposta<List<Usuari>> {

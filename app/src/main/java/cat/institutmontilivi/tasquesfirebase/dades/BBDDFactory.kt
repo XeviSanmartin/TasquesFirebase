@@ -1,7 +1,10 @@
 package cat.institutmontilivi.tasquesfirebase.dades
 
 import android.content.Context
-import cat.institutmontilivi.tasquesfirebase.firestore.ManegadorFirestore
+import cat.institutmontilivi.tasquesfirebase.dades.xarxa.firebase.EstatsFirebaseRemoteDataSource
+import cat.institutmontilivi.tasquesfirebase.dades.xarxa.firebase.TasquesFirebaseRemoteDataSource
+import cat.institutmontilivi.tasquesfirebase.dades.xarxa.firebase.UsuarisFirebaseRemoteDataSource
+import cat.institutmontilivi.tasquesfirebase.dades.xarxa.manegadors.firestore.ManegadorFirestore
 
 
 object BBDDFactory
@@ -19,13 +22,13 @@ object BBDDFactory
 
     fun obtenRepositoriEstats(context: Context?, type: DatabaseType): EstatsRepositori {
         return when (type) {
-            DatabaseType.FIREBASE ->EstatsFirebaseRemoteDataSource(ManegadorFirestore())
+            DatabaseType.FIREBASE -> EstatsFirebaseRemoteDataSource(ManegadorFirestore())
         }
     }
 
     fun obtenRepositoriTasques(context: Context?, type: DatabaseType): TasquesRepositori {
         return when (type) {
-            DatabaseType.FIREBASE ->TasquesFirebaseRemoteDataSource(ManegadorFirestore())
+            DatabaseType.FIREBASE -> TasquesFirebaseRemoteDataSource(ManegadorFirestore())
         }
     }
 }

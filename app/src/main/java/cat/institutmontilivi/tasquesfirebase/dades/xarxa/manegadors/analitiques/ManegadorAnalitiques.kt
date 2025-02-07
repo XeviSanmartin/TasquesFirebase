@@ -1,4 +1,4 @@
-package cat.institutmontilivi.tasquesfirebase.analitiques
+package cat.institutmontilivi.tasquesfirebase.dades.xarxa.manegadors.analitiques
 
 import android.content.Context
 import android.os.Bundle

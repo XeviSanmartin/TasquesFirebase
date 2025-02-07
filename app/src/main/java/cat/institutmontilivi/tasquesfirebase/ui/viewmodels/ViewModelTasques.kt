@@ -1,10 +1,12 @@
 package cat.institutmontilivi.tasquesfirebase.ui.viewmodels
 
+import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import cat.institutmontilivi.tasquesfirebase.dades.BBDDFactory
+import cat.institutmontilivi.tasquesfirebase.dades.xarxa.manegadors.cloudstorage.manegadorCloudStorage
 import cat.institutmontilivi.tasquesfirebase.model.app.Estat
 import cat.institutmontilivi.tasquesfirebase.model.app.Resposta
 import cat.institutmontilivi.tasquesfirebase.model.app.Tasca
@@ -21,6 +23,7 @@ class ViewModelTasques(savedStateHandle: SavedStateHandle): ViewModel() {
     val tasques: StateFlow<EstatTasques> = _tasques.asStateFlow()
     val tasquesRepositori = BBDDFactory.obtenRepositoriTasques(null, BBDDFactory.DatabaseType.FIREBASE)
     val estatsRepositori = BBDDFactory.obtenRepositoriEstats(null, BBDDFactory.DatabaseType.FIREBASE)
+    var tascaActual = Tasca()
 
 
     init{
@@ -107,6 +110,23 @@ class ViewModelTasques(savedStateHandle: SavedStateHandle): ViewModel() {
     {
         viewModelScope.launch (Dispatchers.IO){
             tasquesRepositori.actualitzaTasca(tasca)
+        }
+    }
+
+    fun afegeixFoto(uri: Uri)
+    {
+        viewModelScope.launch {
+            val url = manegadorCloudStorage.carregaImatge(tascaActual.id, uri.lastPathSegment.toString(), uri)
+            tascaActual.uriFotos+=url
+            actualitzaTasca(tascaActual)
+        }
+    }
+    fun afegeixVideo(uri: Uri)
+    {
+        viewModelScope.launch {
+            val url = manegadorCloudStorage.carregaVideo(tascaActual.id, uri.lastPathSegment.toString(), uri)
+            tascaActual.uriVideos+=url
+            actualitzaTasca(tascaActual)
         }
     }
 

@@ -21,7 +21,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import cat.institutmontilivi.tasquesfirebase.R
-import cat.institutmontilivi.tasquesfirebase.analitiques.ManegadorAnalitiques
+import cat.institutmontilivi.tasquesfirebase.dades.xarxa.manegadors.analitiques.ManegadorAnalitiques
 
 
 //@Preview

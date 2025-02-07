@@ -12,9 +12,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import cat.institutmontilivi.tasquesfirebase.analitiques.ManegadorAnalitiques
-import cat.institutmontilivi.tasquesfirebase.autentificacio.ManegadorAutentificacio
-import cat.institutmontilivi.tasquesfirebase.firestore.ManegadorFirestore
+import cat.institutmontilivi.tasquesfirebase.dades.xarxa.manegadors.analitiques.ManegadorAnalitiques
+import cat.institutmontilivi.tasquesfirebase.dades.xarxa.manegadors.autentificacio.ManegadorAutentificacio
+import cat.institutmontilivi.tasquesfirebase.dades.xarxa.manegadors.firestore.ManegadorFirestore
 import cat.institutmontilivi.tasquesfirebase.ui.pantalles.PantallaEstats
 import cat.institutmontilivi.tasquesfirebase.ui.pantalles.PantallaLogin
 import cat.institutmontilivi.tasquesfirebase.ui.pantalles.PantallaPerfil
