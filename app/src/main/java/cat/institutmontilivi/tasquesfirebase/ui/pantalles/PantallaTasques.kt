@@ -117,7 +117,7 @@ fun PantallaTasques(viewModel: ViewModelTasques = viewModel(), navegaAFoto: (Str
     var uriDeLaImatgeCapturada by remember { mutableStateOf<Uri>(Uri.EMPTY) }
     var uriDeLVideoCapturat by remember { mutableStateOf<Uri>(Uri.EMPTY) }
 
-    val camaraImatgeLauncher =
+    val cameraImatgeLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {success->
             if (success) {
                 uriDeLaImatgeCapturada = uriImatge
@@ -127,7 +127,7 @@ fun PantallaTasques(viewModel: ViewModelTasques = viewModel(), navegaAFoto: (Str
                 }
             }
         }
-    val camaraVideoLauncher =
+    val cameraVideoLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.CaptureVideo()) {success->
             if (success) {
                 uriDeLVideoCapturat = uriVideo
@@ -173,9 +173,9 @@ fun PantallaTasques(viewModel: ViewModelTasques = viewModel(), navegaAFoto: (Str
                             eliminaTasca,
                             editaTasca,
                             estat.value.estats,
-                            camaraImatgeLauncher,
+                            cameraImatgeLauncher,
                             uriImatge,
-                            camaraVideoLauncher,
+                            cameraVideoLauncher,
                             uriVideo,
                             viewModel,
                             navegaAFoto
@@ -194,9 +194,9 @@ fun PantallaTasques(viewModel: ViewModelTasques = viewModel(), navegaAFoto: (Str
         eliminaTasca: (String) -> Unit = {},
         editaTasca: (Tasca) -> Unit = {},
         estats: Map<String, Estat> = mapOf(),
-        camaraImatgeLauncher: ManagedActivityResultLauncher<Uri, Boolean>,
+        cameraImatgeLauncher: ManagedActivityResultLauncher<Uri, Boolean>,
         uriImatge: Uri,
-        camaraVideoLauncher: ManagedActivityResultLauncher<Uri, Boolean>,
+        cameraVideoLauncher: ManagedActivityResultLauncher<Uri, Boolean>,
         uriVideo: Uri,
         viewModel: ViewModelTasques,
         navegaAFoto: (String) -> Unit,
@@ -283,7 +283,7 @@ fun PantallaTasques(viewModel: ViewModelTasques = viewModel(), navegaAFoto: (Str
                 IconButton(
                     onClick = {
                         viewModel.tascaActual = tasca
-                        camaraImatgeLauncher.launch(uriImatge)
+                        cameraImatgeLauncher.launch(uriImatge)
                     },
                     modifier = Modifier
                         .padding(8.dp)
@@ -296,7 +296,7 @@ fun PantallaTasques(viewModel: ViewModelTasques = viewModel(), navegaAFoto: (Str
                 IconButton(
                     onClick = {
                         viewModel.tascaActual = tasca
-                        camaraVideoLauncher.launch(uriVideo)
+                        cameraVideoLauncher.launch(uriVideo)
                     },
                     modifier = Modifier
                         .padding(8.dp)
